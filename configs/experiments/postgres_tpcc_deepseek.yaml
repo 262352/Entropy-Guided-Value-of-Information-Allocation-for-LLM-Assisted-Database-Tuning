@@ -1,0 +1,33 @@
+experiment:
+  name: postgres_tpcc_deepseek
+  dbms: postgresql
+  workload: tpcc
+  objective: throughput
+  space: configs/knobs/postgresql_60_live.yaml
+  budget: 50
+  n_init: 5
+  seeds: [0, 1, 2, 3, 4]
+  methods: [cognitune, smac, gp_bo]
+  candidate_pool_size: 10000
+  final_validation_repeats: 3
+  failure_penalty: 1.0
+  initialization:
+    method: iid_random
+  llm:
+    provider: deepseek
+    model: deepseek-flash
+    base_url: https://api.deepseek.com
+    timeout_seconds: 300
+    max_tokens: 16000
+    environment_profile: artifacts/profiles/postgresql_tpcc.json
+  cognitune:
+    active_knob_budget: 12
+    exploit_knob_budget: 9
+    challenge_knob_budget: 3
+    max_block_size: 4
+    challenge_interval: 5
+    relation_threshold: 0.1
+  evaluator:
+    type: postgres_benchbase
+    legacy_config: /root/GPTuner/baselines_random/configs/experiment.json
+    workload: tpcc

@@ -1,0 +1,1 @@
+Analyze cost estimation, access paths, join choices, statistics, and interactions with memory and execution settings.

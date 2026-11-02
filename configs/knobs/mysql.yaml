@@ -1,0 +1,39 @@
+knobs:
+  - name: innodb_buffer_pool_size
+    type: integer
+    lower: 128
+    upper: 16384
+    unit: MB
+    log: true
+    default: 1024
+    restart_required: true
+    category: memory
+    description: InnoDB buffer pool capacity
+  - name: max_connections
+    type: integer
+    lower: 20
+    upper: 1000
+    default: 151
+    log: true
+    category: concurrency
+    description: Maximum client connections
+  - name: innodb_io_capacity
+    type: integer
+    lower: 100
+    upper: 20000
+    default: 200
+    log: true
+    category: storage
+    description: Background InnoDB IO capacity
+  - name: optimizer_switch
+    type: categorical
+    choices: [default, conservative, aggressive]
+    default: default
+    category: optimizer
+    description: Deployment-specific optimizer profile
+  - name: innodb_flush_log_at_trx_commit
+    type: ordinal
+    choices: [0, 2, 1]
+    default: 1
+    category: storage
+    description: Transaction log flush policy

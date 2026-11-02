@@ -1,0 +1,4 @@
+workload:
+  name: synthetic
+  warmup_seconds: 0
+  benchmark_seconds: 0

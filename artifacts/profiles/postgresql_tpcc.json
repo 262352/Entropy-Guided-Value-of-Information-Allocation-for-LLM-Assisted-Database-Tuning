@@ -1,0 +1,236 @@
+{
+  "captured_at": "2026-10-23T07:26:24.430284+00:00",
+  "dbms": {
+    "cumulative_target_database_counters": {
+      "blks_hit": 20987278,
+      "blks_read": 585407,
+      "datname": "benchbase_tpcc",
+      "tup_deleted": 36002,
+      "tup_fetched": 3040829,
+      "tup_inserted": 48517,
+      "tup_returned": 48561244,
+      "tup_updated": 632735,
+      "xact_commit": 18303,
+      "xact_rollback": 212689
+    },
+    "data_directory": "/home/pgbaseline/pgdata-14.9",
+    "database_sizes_bytes": {
+      "benchbase_tpcc": 2202993443,
+      "benchbase_tpcc_template": 2159969059,
+      "benchbase_tpch": 2144289571,
+      "benchbase_tpch_template": 2144289571,
+      "benchbase_twitter": 525878051,
+      "benchbase_twitter_template": 516490019,
+      "benchbase_ycsb": 178586403,
+      "benchbase_ycsb_template": 128860963
+    },
+    "engine": "PostgreSQL",
+    "host": "127.0.0.1",
+    "port": 55432,
+    "settings": {
+      "checkpoint_timeout": {
+        "setting": "300",
+        "unit": "s"
+      },
+      "effective_cache_size": {
+        "setting": "524288",
+        "unit": "8kB"
+      },
+      "effective_io_concurrency": {
+        "setting": "1",
+        "unit": null
+      },
+      "huge_pages": {
+        "setting": "try",
+        "unit": null
+      },
+      "maintenance_work_mem": {
+        "setting": "65536",
+        "unit": "kB"
+      },
+      "max_connections": {
+        "setting": "100",
+        "unit": null
+      },
+      "max_parallel_workers": {
+        "setting": "8",
+        "unit": null
+      },
+      "max_parallel_workers_per_gather": {
+        "setting": "2",
+        "unit": null
+      },
+      "max_wal_size": {
+        "setting": "1024",
+        "unit": "MB"
+      },
+      "max_worker_processes": {
+        "setting": "8",
+        "unit": null
+      },
+      "shared_buffers": {
+        "setting": "16384",
+        "unit": "8kB"
+      },
+      "synchronous_commit": {
+        "setting": "on",
+        "unit": null
+      },
+      "wal_buffers": {
+        "setting": "512",
+        "unit": "8kB"
+      },
+      "work_mem": {
+        "setting": "4096",
+        "unit": "kB"
+      }
+    },
+    "target_database": "benchbase_tpcc",
+    "target_tables": [
+      {
+        "estimated_rows": 30081,
+        "table": "order_line",
+        "total_bytes": 815972352
+      },
+      {
+        "estimated_rows": 0,
+        "table": "stock",
+        "total_bytes": 761683968
+      },
+      {
+        "estimated_rows": 0,
+        "table": "customer",
+        "total_bytes": 450510848
+      },
+      {
+        "estimated_rows": 3047,
+        "table": "oorder",
+        "total_bytes": 85549056
+      },
+      {
+        "estimated_rows": 4515,
+        "table": "history",
+        "total_bytes": 52486144
+      },
+      {
+        "estimated_rows": 142582,
+        "table": "new_order",
+        "total_bytes": 14114816
+      },
+      {
+        "estimated_rows": 0,
+        "table": "item",
+        "total_bytes": 12705792
+      },
+      {
+        "estimated_rows": 200,
+        "table": "district",
+        "total_bytes": 901120
+      },
+      {
+        "estimated_rows": 20,
+        "table": "warehouse",
+        "total_bytes": 229376
+      }
+    ],
+    "user": "benchadmin",
+    "version": "PostgreSQL 14.9 on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "version_num": "140009"
+  },
+  "evidence_notes": {
+    "database_counters": "cumulative PostgreSQL counters; not attributed to one benchmark interval",
+    "hard_constraints": "derived conservatively from host resources and workload concurrency",
+    "transaction_mix": "parsed from the exact generated BenchBase XML",
+    "transaction_read_write_ratio": "classification by transaction semantics, not statement count"
+  },
+  "hardware": {
+    "architecture": "x86_64",
+    "cgroup_cpu_max": "max 100000",
+    "cgroup_memory_max": "max",
+    "cores_per_socket": 12,
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2678 v3 @ 2.50GHz",
+    "disks": [
+      {
+        "model": "WDC WD40EZAX-00C",
+        "mountpoints": [],
+        "name": "sda",
+        "rota": true,
+        "size": 4000787030016
+      },
+      {
+        "model": "Samsung SSD 860 ",
+        "mountpoints": [],
+        "name": "sdb",
+        "rota": false,
+        "size": 500107862016
+      },
+      {
+        "model": "ST2000DM008-2FR1",
+        "mountpoints": [],
+        "name": "sdc",
+        "rota": true,
+        "size": 2000398934016
+      },
+      {
+        "model": "ZHITAI TiPlus5000 1TB                   ",
+        "mountpoints": [],
+        "name": "nvme0n1",
+        "rota": false,
+        "size": 1024209543168
+      }
+    ],
+    "hostname": "tuner",
+    "kernel": "5.15.0-112-generic",
+    "l3_cache": "60 MiB (2 instances)",
+    "logical_cpus": 48,
+    "memory_available_bytes": 78072115200,
+    "memory_bytes": 118117076992,
+    "numa_nodes": 2,
+    "sockets": 2,
+    "swap_bytes": 0,
+    "threads_per_core": 2
+  },
+  "schema_version": 1,
+  "workload": {
+    "batch_size": 128,
+    "config_path": "/root/GPTuner/baselines_random/generated_configs/tpcc.xml",
+    "database": "benchbase_tpcc",
+    "driver": "BenchBase",
+    "isolation": "TRANSACTION_SERIALIZABLE",
+    "measurement_seconds": 120,
+    "name": "tpcc",
+    "rate": "unlimited",
+    "read_only_transaction_percent": 8.0,
+    "read_write_transaction_percent": 92.0,
+    "scale_factor": 20.0,
+    "terminals": 10,
+    "transaction_mix": [
+      {
+        "access_mode": "read_write",
+        "transaction": "NewOrder",
+        "weight_percent": 45.0
+      },
+      {
+        "access_mode": "read_write",
+        "transaction": "Payment",
+        "weight_percent": 43.0
+      },
+      {
+        "access_mode": "read_only",
+        "transaction": "OrderStatus",
+        "weight_percent": 4.0
+      },
+      {
+        "access_mode": "read_write",
+        "transaction": "Delivery",
+        "weight_percent": 4.0
+      },
+      {
+        "access_mode": "read_only",
+        "transaction": "StockLevel",
+        "weight_percent": 4.0
+      }
+    ],
+    "warmup_seconds": 30
+  }
+}

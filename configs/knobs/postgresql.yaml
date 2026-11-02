@@ -1,0 +1,49 @@
+knobs:
+  - name: shared_buffers
+    type: integer
+    lower: 128
+    upper: 8192
+    unit: MB
+    log: true
+    default: 1024
+    restart_required: true
+    category: memory
+    description: PostgreSQL shared buffer size
+  - name: work_mem
+    type: integer
+    lower: 1
+    upper: 1024
+    unit: MB
+    log: true
+    default: 4
+    category: memory
+    description: Memory available to each query operation
+  - name: max_connections
+    type: integer
+    lower: 20
+    upper: 1000
+    log: true
+    default: 100
+    restart_required: true
+    category: concurrency
+    description: Maximum concurrent connections
+  - name: random_page_cost
+    type: float
+    lower: 0.5
+    upper: 8.0
+    default: 4.0
+    category: optimizer
+    description: Planner random page cost
+  - name: synchronous_commit
+    type: categorical
+    choices: ["on", "off", local]
+    default: "on"
+    category: storage
+    description: WAL commit synchronization mode
+hard_constraints:
+  - type: sum_le
+    limit: 32768
+    terms:
+      - knob: shared_buffers
+      - knob: work_mem
+        multiplier: 20

@@ -1,0 +1,1 @@
+Return one strict JSON object. Evaluate every supplied knob exactly once, keep all values inside the declared search space, and distinguish executable branch recommendations from unverified natural-language relations.

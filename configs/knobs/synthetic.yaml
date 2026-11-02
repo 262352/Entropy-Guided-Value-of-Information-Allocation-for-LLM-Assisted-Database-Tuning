@@ -1,0 +1,60 @@
+knobs:
+  - name: cache_mb
+    type: integer
+    lower: 128
+    upper: 8192
+    default: 1024
+    log: true
+    unit: MB
+    category: memory
+    restart_required: true
+    description: Synthetic shared cache capacity
+  - name: worker_threads
+    type: integer
+    lower: 1
+    upper: 32
+    default: 4
+    category: concurrency
+    description: Synthetic execution workers
+  - name: join_strategy
+    type: categorical
+    choices: [nested, hash, merge]
+    default: hash
+    category: optimizer
+    description: Preferred synthetic join strategy
+  - name: io_depth
+    type: ordinal
+    choices: [1, 2, 4, 8, 16]
+    default: 4
+    category: storage
+    description: Synthetic asynchronous IO depth
+  - name: synchronous_writes
+    type: bool
+    default: true
+    category: storage
+    description: Wait for synthetic durable writes
+  - name: parallel_enabled
+    type: bool
+    default: true
+    category: execution
+    description: Enable synthetic parallel execution
+  - name: parallel_degree
+    type: integer
+    lower: 1
+    upper: 16
+    default: 4
+    category: execution
+    condition:
+      parent: parallel_enabled
+      equals: true
+    description: Active parallel execution degree
+  - name: random_page_cost
+    type: float
+    lower: 0.5
+    upper: 8.0
+    default: 4.0
+    category: optimizer
+    description: Synthetic random IO cost
+forbidden_combinations:
+  - synchronous_writes: false
+    io_depth: 1

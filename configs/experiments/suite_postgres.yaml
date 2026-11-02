@@ -1,0 +1,13 @@
+suite:
+  name: postgres_compare
+  workloads: [twitter, tpcc, ycsb]
+  methods: [cognitune, gp_bo, smac, ottertune, cdbtune, dbtune, restune]
+  seeds: [0]
+  budget: 50
+  n_init: 5
+  base_experiment: configs/experiments/postgres_tpcc_deepseek.yaml
+  legacy_config: /root/GPTuner/baselines_random/configs/experiment.json
+  profile_dir: artifacts/profiles
+  meta_dir: artifacts/meta
+  candidate_pool_size: 10000
+  final_validation_repeats: 3

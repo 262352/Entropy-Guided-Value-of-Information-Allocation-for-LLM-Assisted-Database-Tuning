@@ -1,0 +1,1 @@
+Analyze memory allocation, cache pressure, concurrency amplification, and interactions with execution or storage settings.

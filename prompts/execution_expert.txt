@@ -1,0 +1,1 @@
+Analyze parallelism, operators, worker scheduling, temporary work, and cross-category execution constraints.

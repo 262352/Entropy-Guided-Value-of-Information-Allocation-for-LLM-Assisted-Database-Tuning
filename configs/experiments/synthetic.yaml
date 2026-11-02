@@ -1,0 +1,25 @@
+experiment:
+  name: synthetic_smoke
+  dbms: synthetic
+  workload: synthetic
+  objective: throughput
+  space: configs/knobs/synthetic.yaml
+  budget: 20
+  n_init: 5
+  seeds: [0, 1, 2]
+  methods: [cognitune, smac, gp_bo]
+  candidate_pool_size: 256
+  final_validation_repeats: 3
+  initialization:
+    method: iid_random
+  cognitune:
+    active_knob_budget: 8
+    exploit_knob_budget: 5
+    challenge_knob_budget: 3
+    max_block_size: 4
+    challenge_interval: 5
+    relation_threshold: 0.01
+  evaluator:
+    type: synthetic
+    default_metric: 1000.0
+    noise_std: 0.01

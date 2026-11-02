@@ -1,0 +1,1 @@
+Analyze admission, connection pressure, worker contention, lock behavior, and resource interactions.

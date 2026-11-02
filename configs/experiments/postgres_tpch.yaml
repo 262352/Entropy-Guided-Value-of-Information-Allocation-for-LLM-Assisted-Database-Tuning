@@ -1,0 +1,29 @@
+experiment:
+  name: postgres_tpch
+  dbms: postgresql
+  workload: tpch
+  objective: latency
+  space: configs/knobs/postgresql.yaml
+  budget: 50
+  n_init: 5
+  seeds: [0, 1, 2, 3, 4]
+  methods: [cognitune, smac, gp_bo]
+  candidate_pool_size: 10000
+  final_validation_repeats: 3
+  initialization:
+    method: iid_random
+  cognitune:
+    max_block_size: 4
+    challenge_interval: 5
+    relation_threshold: 0.1
+  evaluator:
+    type: command
+    default_metric: REPLACE_WITH_DEFAULT_TPCH_LATENCY
+    timeout_seconds: 1200
+    apply_command: [REPLACE_WITH_POSTGRES_CONFIG_WRITER, '{config_json}']
+    restart_command: [REPLACE_WITH_POSTGRES_RESTART_COMMAND]
+    health_command: [REPLACE_WITH_POSTGRES_HEALTH_COMMAND]
+    warmup_command: [REPLACE_WITH_BENCHBASE_WARMUP_COMMAND]
+    command: [REPLACE_WITH_BENCHMARK_COMMAND]
+    restore_command: [REPLACE_WITH_POSTGRES_RESTORE_COMMAND]
+    metric_regex: 'Latency:\s+(?P<metric>[0-9.]+)'

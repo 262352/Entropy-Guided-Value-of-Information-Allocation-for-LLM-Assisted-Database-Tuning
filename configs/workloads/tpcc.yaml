@@ -1,0 +1,6 @@
+workload:
+  name: tpcc
+  driver: /root/GPTuner/benchbase
+  warmup_seconds: 30
+  benchmark_seconds: 150
+  config_path: REPLACE_WITH_BENCHBASE_TPCC_CONFIG
