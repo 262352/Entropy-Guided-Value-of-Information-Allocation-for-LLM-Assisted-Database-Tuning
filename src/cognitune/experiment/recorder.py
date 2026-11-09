@@ -39,12 +39,28 @@ class TrialRecord:
 
 
 class RunRecorder:
-    def __init__(self, run_dir: str | Path):
+    def __init__(self, run_dir: str | Path, *, resume: bool = False):
         self.run_dir = Path(run_dir)
         self.run_dir.mkdir(parents=True, exist_ok=True)
         self.trace_path = self.run_dir / "trials.jsonl"
         self.knobs_path = self.run_dir / "knobs.jsonl"
         self.knobs_csv_path = self.run_dir / "knobs.csv"
+        if resume and not self.trace_path.exists() and self.knobs_path.exists():
+            raise ValueError("knob trace exists without trial trace; refusing to overwrite evidence")
+        if resume and self.trace_path.exists():
+            # Validate before opening any output for writing.
+            self.records = [TrialRecord(**json.loads(line)) for line in self.trace_path.read_text().splitlines() if line.strip()]
+            if [r.trial for r in self.records] != list(range(len(self.records))):
+                raise ValueError("cannot resume a non-contiguous trial trace")
+            if not self.knobs_path.exists():
+                raise ValueError("cannot resume without the matching knobs trace")
+            knobs = [json.loads(line) for line in self.knobs_path.read_text().splitlines() if line.strip()]
+            if len(knobs) != len(self.records) or any(
+                k.get("trial") != r.trial or k.get("config") != r.config or k.get("status") != r.status
+                or k.get("raw_metric") != r.raw_metric for k, r in zip(knobs, self.records)
+            ):
+                raise ValueError("trial and knob traces disagree; refusing to overwrite evidence")
+            return
         self.trace_path.unlink(missing_ok=True)
         self.knobs_path.unlink(missing_ok=True)
         self.knobs_csv_path.unlink(missing_ok=True)

@@ -1,0 +1,79 @@
+% Replacement front matter and narrative, 2026-11-04.
+% Insert into the existing LLNCS project; retain its bibliography and append
+% additional_related_work.bib. This is not a standalone LaTeX document.
+% No new comparative performance result is asserted in this draft.
+
+\title{CogniTune: Learning Effective Search Spaces for LLM-Assisted Database Tuning}
+\titlerunning{Learning Effective Search Spaces for Database Tuning}
+
+\author{RenJie Yuan\inst{1}\orcidID{0009-0008-7164-7879}}
+\authorrunning{R. Yuan}
+\institute{University of Electronic Science and Technology of China, Chengdu, China\\
+\email{yuanrenjie@example.com}}
+\maketitle
+
+\begin{abstract}
+Database tuning must decide how to spend a limited number of workload executions across interdependent configuration parameters and their value regions. Domain knowledge can identify promising directions, but a direction's remaining benefit depends on the current configuration and on how extensively it has been tested. Consequently, an unproductive search may indicate an exhausted local opportunity, an inaccurate proposal region, or insufficient execution evidence. We present CogniTune, an LLM-assisted framework that learns an effective search space by revising executable search hypotheses. Each hypothesis specifies a parameter group and a structured value proposal; its candidate allocation determines how intensively that direction is explored. Specialized LLM agents propose hypotheses from database knowledge and execution summaries, while a shared performance surrogate estimates their conditional improvement opportunities. CogniTune combines these estimates with explicit measurement coverage to organize retention, revision, and re-entry, and adapts proposal regions using local execution evidence. It compares search hypotheses through equal-size audit sets and selects informative evaluations among candidates with competitive predicted improvement, using the resulting opportunity estimates to update candidate budgets. This design connects configuration selection to the revision of the proposal mechanisms that generate subsequent configurations, making search structure, value coverage, and exploration effort jointly responsive to execution feedback.
+\keywords{Database tuning \and Large language models \and Search space adaptation \and Bayesian optimization \and Execution feedback.}
+\end{abstract}
+
+\section{Introduction}
+
+Database configuration tuning is an expensive search problem. Modern DBMSs expose heterogeneous parameters that control memory, concurrency, storage, and query optimization, and evaluating a configuration requires running the target workload. A tuner must therefore decide which parts of the configuration space deserve its limited execution budget. Domain knowledge can provide a useful starting point, but the directions worth pursuing may change as better configurations are discovered and parameter interactions become relevant.
+
+This creates a problem beyond identifying important knobs. A parameter can be important to database behavior while offering little additional benefit near the current configuration. Conversely, a direction that has not improved performance may have been explored in an unsuitable region or received too few measurements. Interactions make this distinction harder: adjusting a parameter alone can be ineffective even when a coordinated change to several parameters is useful. A tuner must determine when to continue an existing direction, revise its value proposal, or invest in a different parameter group.
+
+\paragraph{Prior progress and the remaining question.}
+Existing work provides several ways to organize this search. DOT uses execution samples to revise the active knob set through feature elimination and an expansion policy~\cite{dot}. MCTuner uses LLM experts to guide knob selection and hierarchical spatial decomposition to allocate BO evaluations across regions~\cite{mctuner}. These approaches establish the value of online dimension control and feedback-guided regional search. They motivate a more specific question: \textbf{how should a tuner revise knowledge-generated search hypotheses when the evidence used to judge them is itself determined by previous search decisions?}
+
+This evidence is selective. A direction receiving few proposals or measurements can appear unproductive without having been adequately tested. A densely sampled region can appear more promising partly because it has had more opportunities to produce a favorable candidate. Changing a parameter group also changes the context in which its earlier measurements should be interpreted. Execution feedback must consequently serve two connected purposes: identifying better configurations and informing how the tuner will generate and allocate subsequent search.
+
+\paragraph{Our perspective: executable search hypotheses.}
+We organize tuning around hypotheses that specify a parameter group and a candidate-generating value proposal, rather than treating knob selection, range adjustment, and expert weighting as unrelated procedures. A hypothesis can suggest, for example, refining a local region for one group or exploring a coordinated alternative involving an interaction partner. The LLM agents provide semantic knowledge for constructing these alternatives. Execution observations and a shared surrogate determine how the alternatives are revised and how much candidate-generation effort they receive.
+
+For a legal configuration space $\mathcal X$ and execution history $\mathcal D_t$, let $h\in\mathcal H_t$ identify a search hypothesis with parameter group $C_{h,t}$, proposal region $R_{h,t}$, and weight $w_{h,t}$. Its proposal mechanism is denoted by $q_{h,t}(x\mid b_t,\mathcal D_t)$, where $b_t$ is the current reference configuration. The overall proposal distribution can be expressed as
+\begin{equation}
+q_t(x)=(1-\epsilon_t)\sum_{h\in\mathcal H_t}w_{h,t}
+q_{h,t}(x\mid b_t,\mathcal D_t)+\epsilon_t q_{\mathrm{ref},t}(x),
+\qquad \sum_h w_{h,t}=1.
+\end{equation}
+Here $q_{\mathrm{ref},t}$ preserves independent exploration. The effective search space refers to the directions, regions, and proposal effort that dominate finite-budget search. Its adaptation need not change the DBMS's legal parameter domains or permanently remove configurations.
+
+This perspective exposes three connected challenges.
+
+\paragraph{C1: Conditional opportunity is different from observed importance.}
+The decision to retain a parameter group concerns its remaining benefit under the current configuration, not simply its association with performance in collected samples. A weak estimate can reflect either limited local opportunity or insufficient coverage. Revising search structure therefore requires conditional improvement estimates together with a record of actual exploration, while preserving the opportunity to reconsider deferred groups when their context changes.
+
+\paragraph{C2: Structural changes and value proposals must remain consistent.}
+Introducing a parameter or an interaction partner changes which value proposals are useful. Meanwhile, improved configurations can shift useful regions within an unchanged parameter group. Updating participating knobs while retaining stale value proposals, or adjusting marginal ranges while breaking a coordinated hypothesis, can undermine both decisions. A tuner needs an executable representation that permits group and region revisions without losing their joint meaning.
+
+\paragraph{C3: Search allocation changes the evidence available for its own revision.}
+Candidate-generation effort influences which hypotheses are likely to supply favorable proposals and eventually receive executions. Allocating effort using raw pool maxima can therefore entangle opportunity estimates with generation volume. Selecting an evaluation also affects what can be learned about future allocation. The tuner must compare alternatives under a common audit procedure and account for their impact on subsequent search decisions.
+
+\paragraph{CogniTune.}
+We address these challenges with an execution-driven loop over search hypotheses. Specialized agents propose sparse parameter-group changes and structured value regions from the workload, current configuration, and relevant execution history. A shared surrogate estimates conditional improvement opportunities for individual groups and coordinated alternatives. Measurement coverage and controlled structural revisions preserve continuity for unresolved directions. Regional execution evidence supports local refinement or broader proposals, while deferred directions remain eligible for reconsideration.
+
+To allocate candidate-generation effort, CogniTune constructs equal-size feasible audit sets for the competing hypotheses. It defines a posterior opportunity variable over the strongest audited proposal's hypothesis membership, including shared membership and a no-meaningful-improvement outcome. Among candidates with competitive predicted improvement, an evaluation may be selected for its expected reduction of uncertainty about this variable. The observed result then informs both performance prediction and the next allocation of proposal effort. Decision entropy is used to support this allocation decision; predicted opportunity, measurement coverage, and remaining budget also govern the search.
+
+Our contributions are threefold:
+\begin{enumerate}
+    \item \textbf{Conditional opportunity estimation for executable search hypotheses.}
+    We represent knowledge-generated tuning directions as parameter groups with structured value proposals, and evaluate their improvement opportunities relative to the current configuration. Combining posterior opportunity estimates with explicit execution coverage provides a basis for distinguishing low estimated benefit from unresolved directions and for reconsidering interaction-dependent opportunities.
+
+    \item \textbf{Coordinated adaptation of search structure and value coverage.}
+    We develop a control mechanism that revises participating groups and their proposal regions using accumulated execution evidence. Staged replacement, measured exploration coverage, and context-aware reconsideration connect structural changes to local refinement and expansion, preserving useful search continuity while allowing new directions to enter.
+
+    \item \textbf{Evaluation--allocation coupling over comparable search alternatives.}
+    We compare search hypotheses using fixed-size feasible audit sets and use posterior opportunity information to allocate candidate-generation effort. Evaluation selection combines predicted improvement with information relevant to these alternatives, linking each measurement to the construction of subsequent proposals rather than assigning permanent competence scores to expert identities.
+\end{enumerate}
+
+\section{Related Work}
+
+\paragraph{Configuration optimization and online knob selection.}
+Heuristic and learning-based tuners reduce the cost of exploring DBMS configuration spaces through structured search, surrogate modeling, and learned policies~\cite{bestconfig,opentuner,ottertune,cdbtune}. DOT is particularly relevant because it updates knob selection during optimization using RFECV and an LRT-based expansion policy~\cite{dot}. CogniTune instead organizes candidate-generating hypotheses around conditional improvement opportunities, their value proposals, and the execution evidence available for judging them. The distinction is the decision object and its joint revision, rather than the presence of online feedback alone.
+
+\paragraph{LLM-guided tuning and proposal generation.}
+GPTuner and MCTuner demonstrate how domain knowledge can guide database tuning~\cite{gptuner,mctuner}. MCTuner combines expert-guided knob selection with feedback-driven hierarchical subspace search~\cite{mctuner}. More broadly, LLAMBO conditions LLM-assisted BO on historical evaluations and uses LLM capabilities in candidate sampling and modeling~\cite{llambo}. CogniTune treats expert suggestions as executable search alternatives whose participating parameters, value coverage, and proposal effort are subsequently revised using execution evidence. Specialized agents supply these alternatives; their number is not the organizing principle of the method.
+
+\paragraph{Local optimization and information-based allocation.}
+Adaptive regions and information-based selection have substantial precedents in BO. TuRBO combines local models with global sampling allocation~\cite{turbo}, and Entropy Search Portfolio uses an information-theoretic criterion to select among portfolio proposals~\cite{esp}. CogniTune studies allocation among changing, knowledge-generated parameter-group proposals for constrained DBMS configurations. Its audit variable represents the opportunities of these executable search alternatives, and its evaluation policy connects information acquisition to subsequent candidate allocation. Establishing the value of this combination requires comparisons against local BO and simpler portfolio policies, in addition to database-specific baselines.

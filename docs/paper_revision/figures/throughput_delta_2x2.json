@@ -1,0 +1,225 @@
+{
+  "created_utc": "2026-11-09T07:41:06.937584+00:00",
+  "formula": "delta = (max successful throughput through round r - default) / default",
+  "default_definition": "median of three pre-run default measurements",
+  "notes": [
+    "Twitter/TPC-C use user-provided illustrative arrays, including their padding/truncation to 100; they are not measured traces.",
+    "Their denominator is the corresponding historical pre-run measured default median, not the first initialization point.",
+    "YCSB/CH are baseline-only; CH objective also includes analytical latency, absent from this throughput-only figure.",
+    "TPC-H omitted because its main metric is latency."
+  ],
+  "workloads": {
+    "twitter": {
+      "default": 15902.699694138077,
+      "default_source": "artifacts/twitter_pair_50_v3/default_before.json",
+      "unit": "successful requests/s",
+      "data_origin": "user_supplied_arrays",
+      "series": {
+        "ours": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 22540.0,
+          "final_delta": 0.4173694047878242
+        },
+        "mctuner_official": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 22000.0,
+          "final_delta": 0.38341290618154983
+        },
+        "gp_bo": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 19492.0,
+          "final_delta": 0.22570383487685314
+        },
+        "smac": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 21498.0,
+          "final_delta": 0.3518459389586799
+        },
+        "ottertune": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 19194.0,
+          "final_delta": 0.2069648782385758
+        },
+        "cdbtune": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 19585.0,
+          "final_delta": 0.2315518985257115
+        },
+        "restune": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 18856.0,
+          "final_delta": 0.18571062540724106
+        },
+        "dot_official": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 22454.0,
+          "final_delta": 0.4119615179727509
+        }
+      }
+    },
+    "tpcc": {
+      "default": 174.59999861775,
+      "default_source": "artifacts/real_pair_50/default_before.json",
+      "unit": "legacy Goodput requests/s",
+      "data_origin": "user_supplied_arrays",
+      "series": {
+        "ours": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 520.0,
+          "final_delta": 1.9782359915043912
+        },
+        "mctuner_official": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 520.0,
+          "final_delta": 1.9782359915043912
+        },
+        "gp_bo": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 485.0,
+          "final_delta": 1.777777799768519
+        },
+        "smac": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 381.408,
+          "final_delta": 1.1844673712455902
+        },
+        "ottertune": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 405.324,
+          "final_delta": 1.3214433173471651
+        },
+        "cdbtune": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 381.408,
+          "final_delta": 1.1844673712455902
+        },
+        "restune": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 410.0,
+          "final_delta": 1.3482245317630777
+        },
+        "dot_official": {
+          "rounds": 100,
+          "source": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/docs/paper_revision/figures/supplied_throughput_series.json",
+          "best_throughput": 493.0,
+          "final_delta": 1.8235968150224324
+        }
+      }
+    },
+    "ycsb": {
+      "default": 1800.6236091689893,
+      "default_source": "artifacts/remaining_baselines_100_v1/ycsb/default.json",
+      "unit": "successful requests/s",
+      "data_origin": "measured_trial_ledger",
+      "series": {
+        "mctuner_official": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/ycsb/mctuner_official/ledger",
+          "best_throughput": 2764.858480016978,
+          "final_delta": 0.5355005154536406
+        },
+        "gp_bo": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/ycsb/gp_bo/ledger",
+          "best_throughput": 3030.313771394129,
+          "final_delta": 0.6829246023230016
+        },
+        "smac": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/ycsb/smac/ledger",
+          "best_throughput": 2661.8708059230903,
+          "final_delta": 0.47830495633208847
+        },
+        "ottertune": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/ycsb/ottertune/ledger",
+          "best_throughput": 2612.0829570212713,
+          "final_delta": 0.4506546197218756
+        },
+        "cdbtune": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/ycsb/cdbtune/ledger",
+          "best_throughput": 2619.133149202759,
+          "final_delta": 0.4545700366616442
+        },
+        "restune": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/ycsb/restune/ledger",
+          "best_throughput": 2883.6406265841906,
+          "final_delta": 0.6014677425644926
+        },
+        "dot_official": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/ycsb/dot_official/ledger",
+          "best_throughput": 2774.347902685464,
+          "final_delta": 0.540770591120851
+        }
+      }
+    },
+    "chbenchmark": {
+      "default": 68.2499637183193,
+      "default_source": "artifacts/remaining_baselines_100_v1/chbenchmark/default.json",
+      "unit": "transactional TPS",
+      "data_origin": "measured_trial_ledger",
+      "series": {
+        "mctuner_official": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/chbenchmark/mctuner_official/ledger",
+          "best_throughput": 75.04914195438135,
+          "final_delta": 0.09962171209531445
+        },
+        "gp_bo": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/chbenchmark/gp_bo/ledger",
+          "best_throughput": 75.2666246214757,
+          "final_delta": 0.1028082730141149
+        },
+        "smac": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/chbenchmark/smac/ledger",
+          "best_throughput": 77.04920778012266,
+          "final_delta": 0.1289267214576045
+        },
+        "ottertune": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/chbenchmark/ottertune/ledger",
+          "best_throughput": 78.44262366966272,
+          "final_delta": 0.14934308234082724
+        },
+        "cdbtune": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/chbenchmark/cdbtune/ledger",
+          "best_throughput": 73.99997612514103,
+          "final_delta": 0.08424931082092797
+        },
+        "restune": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/chbenchmark/restune/ledger",
+          "best_throughput": 76.2166239815464,
+          "final_delta": 0.11672768495683088
+        },
+        "dot_official": {
+          "rounds": 100,
+          "source": "artifacts/remaining_baselines_100_v1/chbenchmark/dot_official/ledger",
+          "best_throughput": 73.99997612514103,
+          "final_delta": 0.08424931082092797
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,301 @@
+\section{Additional Method Details}\label{sec:ct-reproducibility}
+
+\subsection{Notation and Controller Settings}
+
+\begin{table}[htbp]
+\caption{Notation used in the method.}\label{tab:ct-symbols}
+\centering\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.23\linewidth}>{\raggedright\arraybackslash}p{0.69\linewidth}}
+\toprule
+Symbol & Definition \\
+\midrule
+$T,n_0,d_a$ & Workload execution budget, initial design size, active-knob capacity. \\
+$N,N_g,N_r$ & Total candidate capacity, group capacity, reserved capacity. \\
+$\mathcal D_t,L,M_t$ & Successful utility observations, all execution records, controller memory.
+\\
+$P_t,\mathcal P$ & Fitted GP posterior and structured expert proposals.
+\\
+$\mathcal Q_t,\mathcal V_t$ & Compiled sampling bundle and all previously attempted configurations.
+\\
+$B,\gamma,w_{\rm end}$ & Adaptive budget, exploitation fraction, final exploitation window. \\
+$\bar x_t,A_t,R_t,b_t$ & Best observed configuration, active knobs, proposal regions, mode quotas. \\
+$h,C_h,E_h,q_{h,t}$ & Search mode, its knob group, contributing experts, proposal distribution. \\
+$\mathcal H_t,\mathcal K_t,a_0$ & Modes, structural actions, keep action. \\
+$\mathcal A_{h,t}(a)$ & Fixed audit points for mode $h$ in action $a$. \\
+$m,m_t,b_{\min},N_{\rm rem}$ & Requested/common feasible audit size, quota floor, remaining capacity. \\
+$D_h,G_t,\mu_t,\pi_t$ & Mode audit gain, allocation-weighted opportunity, paired mean advantage and superiority probability. \\
+$S(x),J_t,w_{h,t}$ & Source set, opportunity label, shared mode credit. \\
+$\delta,\eta,\lambda,\rho$ & Utility margin, EI guard, credit smoothing, superiority threshold. \\
+$z_j,c_j,r_j,Q_\beta$ & Normalized value, region center, half-width, posterior quantile. \\
+$H_j^{\rm sel},s_j,\alpha$ & Priority-rating entropy, priority score, smoothing count. \\
+$e_i,W_t,\kappa_t$ & Pre-execution standardized residual, recent residual window, predictive coverage. \\
+$\mu_i^-,v_i^-,\tau_i^2$ & Latent predictive mean/variance and observation-noise variance. \\
+$F,R_f,\sigma_{\rm MC}$ & Noisy fantasy count, sampled entropy reduction, outer Monte Carlo standard error. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A knob is one DBMS parameter. A group is a small set of knobs modified
+together. A mode adds a proposal distribution and expert provenance to a
+group. An action specifies an alternative search state; it is distinct
+from a configuration submitted for execution. An expert is an LLM role;
+an owning expert is one whose declared domain includes the knob. The
+controller applies the deterministic feasibility, sampling, and decision
+rules. Throughput/latency are measured performance metrics, utility is the
+normalized log metric, and gain is a difference in utility. These terms
+are used consistently throughout the method.
+
+\begin{table}[htbp]
+\caption{Complete default hyperparameters and fixed controller rules.}
+\label{tab:ct-settings}\label{tab:ct-rules}
+\centering\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.34\linewidth}>{\raggedright\arraybackslash}p{0.58\linewidth}}
+\toprule
+Parameter or rule & Default / definition \\
+\midrule
+$T,n_0$ & $50,10$; default plus 9 persisted IID configurations. \\
+$N,N_g,N_r$ & $100,80,20$; $N=N_g+N_r$. \\
+$m,b_{\min}$ & $4,5$; audits occupy quota slots. \\
+$|\mathcal H_t|,N_{\rm rem}$ & $1\leq|\mathcal H_t|\leq\min(12,\lfloor N_g/b_{\min}\rfloor)$; $N_g-|\mathcal H_t|b_{\min}\geq0$. \\
+$d_a$ & $\min(18,\max(6,\lfloor(T-n_0)/4\rfloor))$, capped by available knobs; 10 for defaults. \\
+$\delta,\eta,\lambda$ & $0.01,0.8,0.02$. \\
+$\alpha,\rho$ & $0.5,0.8$. \\
+Entropy reservation & $\lceil0.25d_{\rm free}\rceil$ initial slots; priority cutoff $s_j\geq0.5$. \\
+Action/probe caps & At most 4 action slots; 4 preliminary probes per variant; 128 distinct posterior reference points per round. \\
+Region posterior & 256 joint latent draws; at least 32 improving draws for radius quantiles. \\
+Radius summaries & Quantiles $0.8$ and $[0.1,0.9]$; relative step $[0.8,1.5]$; absolute bounds $[0.025,0.5]$. \\
+Initial radius/center & Radius clipped to $[0.05,0.25]$, fallback $0.15$; center step at most $0.1$. \\
+Calibration & At least 8 successful adaptive predictions; last at most 20; $\kappa_t\geq0.7$ within $1.96$ predictive deviations. \\
+Information sampling & $F=16$ noisy fantasies, 256 inner latent draws, at most 16 shortlist points, threshold $2\sigma_{\rm MC}$. \\
+qLogNEI & Batch size 1, 128 acquisition samples; all successful observations as baseline. \\
+Exchange schedule & Every 6 adaptive rounds; at most 2 newly active knobs. \\
+Retirement evidence & Residence 6 rounds, 2 successful local tests, distinct values, 1 fresh test after reset, no gain $>\delta$ in 6 rounds. \\
+Context reset & Anchor changes $>4$ knobs or any normalized coordinate by $>0.3$. \\
+Coverage/re-entry & Every 3 / 8 adaptive rounds; coverage wins collisions; disabled for final $w_{\rm end}$ trials.
+\\
+$B,\gamma,w_{\rm end}$ & $B=T-n_0\geq1$, $0<\gamma<1$, default $0.1$, $w_{\rm end}=\min(B,\max(1,\lceil\gamma B\rceil))$; 4 trials for $T=50,n_0=10$. \\
+Patch/sampling & At most 4 patches per expert, 4 actual changes, total normalized movement $\leq1.5$; numerical global exploration $0.1$. \\
+Sampling attempt cap & $\max(100,60k)$ for a batch of $k$ configurations. \\
+Expert-facing allocation & Floor 4 per expert, smoothing $0.02$; remainder-preserving rounding. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Initialization first includes protected resource knobs
+(\texttt{shared\_buffers}, \texttt{work\_mem}, and
+\texttt{maintenance\_work\_mem}, when present) and domain representatives.
+With $d_{\rm free}$ remaining slots, entropy candidates are ordered by
+entropy, posterior gain, then knob identifier. The other candidates are
+ordered by priority, posterior gain, then identifier. Each knob occupies
+one slot; exhausted verification candidates return capacity to priority.
+Unqueried ratings are missing rather than low-priority votes.
+
+\begin{table}[htbp]
+\caption{Additional fixed numerical and model settings.}\label{tab:ct-settings-aux}
+\centering\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.34\linewidth}>{\raggedright\arraybackslash}p{0.58\linewidth}}
+\toprule
+Rule & Setting \\
+\midrule
+Conditional probes & Numerical offsets $\pm0.15$; legal neighboring discrete alternatives. \\
+Distinct executed values & Normalized separation $\geq0.005$; two values except domains with fewer alternatives. \\
+Minimum local movement & $\min(0.01,0.1r_j)$ for numerical coordinates. \\
+Two-sided coverage & Displacements from center below $-0.25r_j$ and above $0.25r_j$. \\
+Supported joint group & Improvement probability $\geq0.7$ and expected gain $>\delta$. \\
+LLM protocol & Four roles, temperature $0.2$, JSON, disabled thinking, 6,000 maximum output tokens, 3 schema attempts. \\
+GP protocol & Exact GP, Mat\'ern-$5/2$ ARD, learned noise, double precision, at most 75 fitting steps. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Deterministic Action Construction}
+
+Candidate groups are individual knobs and confirmed small interaction
+groups. A group eligible for retirement contains one or two knobs, each meeting
+the residence/coverage rules, with no protected knob or supported active
+interaction broken. Active interaction partners are protected when their
+conditional improvement probability is at least $0.7$ and expected gain
+exceeds $\delta$. Domain representation and activation parents are retained.
+A replacement admits the same number of new knobs as it retires, at most
+two. Groups violating active capacity $d_a$ or sparse patch constraints are
+excluded. The target on a review round is the eligible group with lowest
+conditional gain; if none exists, the lowest-gain active group is a
+region-only target. Non-review rounds also use a region-only target. With execution index
+$t$, exchange review is due when $t>n_0$ and $(t-n_0)\bmod6=0$.
+Coverage and re-entry are due when $(t-n_0+1)$ is divisible by 3 and 8,
+respectively; both are disabled in the final $w_{\rm end}$ trials.
+
+Each action slot has a deterministic candidate list. Reshape variants use
+inner, current, and outer radii and bounded center suggestions. The exchange
+slot considers inactive groups in descending conditional gain. For a
+combined action, retained partners come from confirmed interactions with
+the incoming group, ordered by joint conditional gain. Each variant gets
+four legal preliminary probes with common random seeds; the largest
+expected positive probe gain retains the slot. Equal scores favor fewer
+changed coordinates, then sorted knob identifiers, centers, and widths.
+The keep action is always present. No empty slot is filled by repeating
+another action. After expert approval and edits, scores are recomputed.
+
+Mode admission is deterministic within every state. Merge identical knob
+groups and retain their contributing experts and alternative patches.
+Sort modes by conditional gain. First select the highest-ranked mode
+covering each not-yet-represented expert, in fixed role order while
+capacity permits; then fill remaining mode slots by rank. This enforces
+Equation~\ref{eq:ct-accounting} before any quota arithmetic. If no legal
+mode exists, use the projected legal fallback distribution or terminate
+with the execution checkpoint if even that is empty.
+
+For state comparison, audit sizes are equalized across all admitted modes
+and states; keep the same random seeds for unchanged distributions.
+Configuration duplicates are one point with all sources retained.
+Credit and quotas are computed on each state's frozen audit. This yields
+$b(a)$ before $G_t(a;U)$ is evaluated. Thus a reshape that changes which
+mode deserves candidate capacity can change the preferred structural
+action, even when its active knobs stay the same.
+
+An exchange must pass the paired mean/probability criteria against both
+keep and the strongest admissible reshape of its outgoing group. If no
+reshape is approved or feasible, keep supplies the comparison. A combined
+action must satisfy the same tests. Posterior draws use the joint
+covariance on all compared points, not independent marginal samples.
+The 128-point cap includes anchor, preliminary and radius probes, state audits,
+reserved-source audits, and information shortlist points. Shared points
+are reused. If needed, drop combined first, then exchange; retain the
+incumbent reshape when testing an exchange. Remove low-ranked optional
+radius probes if still necessary, recomputing summaries on the retained
+set. Preserve equal audit counts and the keep reference throughout.
+
+\subsection{Regions, Executed Evidence, and Gate Records}
+
+Region notation suppresses a mode index: each $c_j,r_j$ belongs to the
+mode being compared. Numerical coordinates use declared global linear/log
+normalization. Inner/outer probes vary legal directions in the affected
+sparse group. Joint posterior best configurations determine radius
+quantiles, so correlated coordinates share samples. A recommendation is
+clipped both relatively and absolutely; edited centers are part of the
+re-scored state, not applied after the comparison. Shrinking requires
+executed points with $(z_j(x)-c_j)/r_j<-0.25$ and $>0.25$. Discrete
+preferences use legal actual alternatives and have no numerical radius.
+
+Distinct executed values differ by at least $0.005$ in the controller's
+normalized coordinate. Two are required except for Boolean knobs (one),
+categories ($\min(2,|\mathrm{choices}|-1)$), and integer domains with fewer
+available alternatives. Numerical changes below $\min(0.01,0.1r_j)$ do not
+establish local coverage. Only successful sparse local executions supply
+that coverage; full-domain references do not. A joint trial can supply
+coverage to its changed knobs without identifying separate causal effects.
+Context resets clear local windows and fresh coverage while preserving
+lifetime history.
+
+Each adaptive prediction is recorded before execution. Its residual
+uses latent variance plus learned observation noise; failed executions
+produce no residual. Coverage is the fraction of the last at most twenty
+successful adaptive predictions inside the nominal $95\%$ interval.
+Initial IID measurements are training data, not in-sample calibration
+residuals. The gate needs eight out-of-sample predictions and coverage
+at least $0.7$. When it fails, qLogNEI and scheduled trials continue to
+collect evidence without committing a posterior-driven state change.
+
+Event records distinguish the number of region variants generated,
+expert-approved variants, cases with enough improving draws, calibration passes,
+paired-comparison passes, and adopted actions. Report both the gate pass
+fraction among adaptive rounds and adoption fractions among eligible
+region decisions. Expansion, contraction, center shift, and hold are
+recorded per numerical region, alongside magnitudes and credible intervals.
+Information records include gate eligibility, standard-error rejection,
+selection, and scheduled override. These denominators separate a lack of
+opportunities from a mechanism that proposes changes but fails its tests.
+
+\subsection{Quota, Trial Selection, and Cost Details}
+
+Candidate capacity satisfies $N_g\geq4|E|$ for the expert-facing floor.
+Group quotas use largest-remainder rounding after integer floors; ties
+follow canonical group order. Since $N_{\rm rem}\geq0$, they sum to $N_g$.
+Let $g_e=v_e/\sum_{e'}v_{e'}$ for expert emphasis. Expert-facing shares are
+\begin{equation}
+ b^{\rm expert}_{e,t}=4+\operatorname{RoundSum}_e\!\left[
+ (N_g-4|E|)\frac{0.02+g_e}{\sum_{e'}(0.02+g_{e'})}\right],\quad |E|=4.
+\end{equation}
+These shares enter the next expert request; current executable mode
+quotas remain $b_h$. Audits are part of those quotas. Reference and
+cross-domain sources do not receive group credit unless they also carry
+a group source. The reserve uses up to twelve reference points, or six
+on coverage rounds, up to four reviewed cross-domain patches, and the
+scheduled coverage/re-entry points. Unused slots are not topped up.
+
+The compiled bundle $\mathcal Q_t=\textsc{Compile}(A_t,R_t,\bar x_t,\mathcal P)$
+contains the mode samplers, selected legal scopes, anchor, validated patch
+seeds, and reviewed cross-domain patches. $\textsc{Fill}$ starts with frozen
+audits and fills remaining mode quotas using these samplers. Patch seeds
+are inserted only within their group's quota, then locally expanded;
+ordinary sampling supplies the rest. It does not query experts again.
+Patches incompatible with the selected action are omitted.
+
+$\textsc{RecordState}$ stores the selected active set and regions, marks
+newly admitted knobs with their entry round, and resets their residence
+coverage counters without awarding an executed test. Initialization builds
+the failed-configuration set from all initial execution records.
+
+$\textsc{Reserve}$ receives the same bundle, memory $M_t$, the forbidden
+set $\mathcal V_t$, and capacity $N_r$. Reference configurations are legal
+full-space IID draws. Reviewed cross-domain configurations are executable
+patches applied to the compiled anchor. Coverage proposals target active
+knobs with the fewest successful local tests and insufficient distinct
+values, using legal alternatives around their stored centers. Re-entry
+proposals target the longest-waiting inactive legal knob/group and required
+partners; ties use knob identifiers. Memory supplies active residence,
+coverage counts/values, waiting times, region records, and attempted/failed
+configuration keys. Coverage takes precedence over re-entry collisions.
+The proposal carries its source and scheduled target through selection.
+
+All samplers, patch insertion, and audits reject every configuration in
+$\mathcal V_t=\{x:(x,y,s)\in L\}$, including all failed attempts, before
+occupying a slot. Canonical-key deduplication combines group and reserved
+pools and unions source labels; the final union is filtered against
+$\mathcal V_t$ again. Frozen audit labels keep their audit-source sets; later pool deduplication
+adds executable provenance without changing those labels. Duplicate slots
+are not additional capacity, and rejection sampling obeys its fixed attempt limit. If the final pool is
+empty, terminate at the checkpoint rather than rerun a failed configuration.
+
+The selected state's frozen audits define the information label and
+remain fixed under every fantasy. Ties in best audit utility use
+configuration keys. Common inner latent normals are shared across
+candidates and fantasies; the $F$ outer noisy fantasy draws are independent.
+Equation~\ref{eq:ct-mc-error} estimates variability over these outer draws.
+It does not estimate inner entropy bias or certify predictive calibration.
+qLogNEI is scored in log space with cutoff $\max\log a+\log\eta$.
+Shortlisting first retains each available source's best eligible point,
+then fills by qLogNEI, to at most sixteen points.
+
+\subsection{Expert and Surrogate Protocol}
+
+The four experts use role prompts on \texttt{deepseek-flash}, temperature
+$0.2$, disabled thinking, JSON output, and at most 6,000 output tokens.
+All completed configurations, performance records, and failures enter the
+run history. Fixed instructions, workload and domain descriptions, and append-only
+compact history precede volatile scopes, anchors, and shares. Actual
+provider cache usage, all retries, reviews, token counts, and latency are
+recorded. Required schema errors permit at most three proposal attempts.
+Experts approve legal action identifiers and action-tagged patches;
+prospective scopes become executable only if the action is selected.
+Cross-domain disagreement drops that patch. Empty/failed proposals retain
+a scope-projected legal distribution, then fall back to the anchor-centered
+sampler. They create no utility observations.
+
+The exact GP uses output standardization, learned Gaussian noise, double
+precision, and at most 75 fitting steps. Numerical coordinates follow
+linear/log normalization, ordinal values normalized indices, categories
+one-hot indicators, Boolean values two indicators, and every knob an
+activation mask. Inactive values are zero with mask zero. Activity restricts
+generation, not model input dimension. With $n$ successful observations and
+encoded dimension $d$, a dense factorization costs $O(n^3+n^2d)$ with
+$O(n^2+nd)$ storage. Posterior comparisons use the bounded reference set.
+LLM usage, GP fitting, state-audit generation, posterior sampling, and
+workload execution are distinct timing categories.
+
+Feasibility handling clips/rounds values, resolves activation dependencies,
+repairs declared forbidden/resource combinations, and validates the full
+configuration. Repairs count toward patch size and movement. Invalid or
+repeated candidates are rejected before workload execution. Failed trials
+consume $T$ and remain in expert history and the attempted set, but do
+not train the utility GP or increase successful coverage.

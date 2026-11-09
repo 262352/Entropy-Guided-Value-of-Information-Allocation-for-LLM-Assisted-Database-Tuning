@@ -1,0 +1,173 @@
+{
+  "checked_utc": "2026-11-09T07:28:19.749042+00:00",
+  "jobs": {
+    "ycsb/smac": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "ycsb/gp_bo": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "ycsb/cdbtune": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "ycsb/restune": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "ycsb/ottertune": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "ycsb/mctuner_official": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "ycsb/dot_official": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "tpch/smac": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "tpch/gp_bo": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "tpch/cdbtune": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "tpch/restune": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "tpch/ottertune": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": false,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "tpch/mctuner_official": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "tpch/dot_official": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "chbenchmark/smac": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "chbenchmark/gp_bo": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "chbenchmark/cdbtune": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "chbenchmark/restune": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "chbenchmark/ottertune": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "chbenchmark/mctuner_official": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    },
+    "chbenchmark/dot_official": {
+      "rounds": 100,
+      "validated": true,
+      "comparison_valid": true,
+      "statuses": {
+        "SUCCESS": 100
+      }
+    }
+  }
+}

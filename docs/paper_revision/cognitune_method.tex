@@ -1,0 +1,813 @@
+% DASFAA/LNCS camera-ready template for JointTune
+\documentclass[runningheads]{llncs}
+
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext}
+\usepackage[varvw]{newtxmath}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{url}
+
+\begin{document}
+
+\title{JointTune: Jointly Revising Search Structure and Candidate
+Allocation for LLM-Assisted Database Tuning}
+
+\titlerunning{JointTune: Joint Search-State Revision and Allocation}
+
+\author{RenJie Yuan\inst{1}\orcidID{0009-0008-7164-7879}}
+
+\authorrunning{R. Yuan}
+
+\institute{University of Electronic Science and Technology of China, Chengdu, China\\
+\email{yuanrenjie@example.com}}
+
+\maketitle
+
+\begin{abstract}
+Database knob tuning under a limited execution budget must jointly
+decide which parameters to tune, where to explore their values, and how
+much candidate-generation capacity each direction receives. Large
+language models (LLMs) can supply parameter semantics, recommended
+regions, and interaction hypotheses, but these priors must be corrected
+by execution evidence for the target workload and hardware. Existing
+LLM-assisted tuners use execution feedback mainly to update performance
+prediction, while the subsequent search structure and the share of
+expert proposals are revised only partially or independently. This paper
+presents JointTune, a framework that couples search-state revision with
+audited candidate allocation in a single feedback loop. Stage~1 compares
+a bounded menu of keep, reshape, exchange, and combined actions, where
+each action induces a complete search state: its regions determine audit
+points, audit opportunities determine quotas, and these quotas enter the
+action score. Experts review the resulting posterior evidence and return
+legal patches. Stage~2 allocates real execution budget on the selected
+state through equal-size audits and informative trial selection, where a
+trial may be chosen for its value in clarifying which direction deserves
+the next quota. Successful executions update the shared Gaussian process,
+local coverage, residuals, and audit credit, whereas failed attempts
+remain in history without training the utility GP. The three search
+decisions share the same execution evidence and posterior model, so
+limited evaluations revise both what to search and how much to invest,
+rather than optimizing them separately and then combining them. We
+present the method design, its key invariants, and an experimental
+protocol; systematic empirical results will be reported in the completed
+study.
+\keywords{Database tuning \and Large language models \and Joint
+search-state revision \and Audited allocation \and Bayesian optimization
+\and Candidate budget allocation.}
+\end{abstract}
+
+\section{Introduction}
+
+The growth of data-intensive applications and increasingly diverse
+workloads places greater demands on database performance and resource
+efficiency. Database knob tuning is a critical means of fully utilizing
+database resources: by adjusting configuration parameters governing
+memory, concurrency, storage, and query optimization, it improves
+throughput or latency for a given workload and environment. However,
+modern database management systems (DBMSs) typically expose hundreds of
+heterogeneous and interdependent knobs, forming a vast configuration
+space. Since evaluating a configuration requires executing the target
+workload, extensive trial-and-error search incurs high time and resource
+costs. Therefore, the core problem of efficient tuning is: \textbf{how to
+construct and continuously adjust an effective search space focused on
+promising directions under a limited execution budget.}
+
+Existing approaches broadly fall into three categories: heuristic,
+machine-learning-based, and large language model (LLM)-based methods.
+\textbf{Heuristic methods} use predefined rules or search strategies, as
+exemplified by BestConfig~\cite{bestconfig} and
+OpenTuner~\cite{opentuner}, but their effectiveness depends heavily on
+prior assumptions about the tuning task. \textbf{Machine-learning-based
+methods} use Bayesian optimization or reinforcement learning to learn
+from execution feedback~\cite{ottertune,ituned,cdbtune,qtune}; however,
+exploring high-dimensional spaces usually requires substantial evaluation
+effort. \textbf{LLM-based methods} incorporate domain knowledge into knob
+selection, range reduction, and configuration recommendation to narrow
+the search space and accelerate
+tuning~\cite{gptuner,mctuner,agenttune}. SysInsight~\cite{sysinsight}
+further explores extracting verifiable knowledge from database source
+code and runtime diagnostics to guide tuning. These approaches
+demonstrate that domain knowledge can effectively limit the search space
+before tuning begins. However, documentation often lacks explicit tuning
+advice for every knob, and most recommendations are broad and may not
+suit specific workloads, hardware conditions, and configuration
+combinations.
+
+Some studies have also begun to use execution feedback to adjust search
+arrangements. DOT~\cite{dot} updates the active knob set during tuning
+through statistical tests, and MCTuner~\cite{mctuner} organizes local
+search through spatial decomposition. However, these methods typically
+revise only one aspect of the search space. DOT's decisions mainly act on
+the inclusion and removal of knobs, while value regions and candidate
+budgets are handled implicitly by the downstream optimizer; when low
+gains arise from a misaligned region or an insufficient budget,
+adjusting the knob set alone cannot recover search efficiency. MCTuner
+incorporates LLM knowledge for knob selection and range reduction, but
+its region revision and candidate allocation still follow a predefined
+spatial decomposition rather than execution-driven joint revision. These
+methods therefore treat search-space adjustments as independent aspects,
+ignoring the inseparable coupling among parameter groups, recommendation
+regions, and candidate-generation budgets. Introducing new parameters
+without adjusting their value regions may leave them wandering in
+ineffective areas; expanding regions without increasing candidate budgets
+leads only to ineffective exploration; and increasing budgets without
+updating parameters and regions only directs resources toward
+low-potential directions. Without a unified feedback loop, these isolated
+modifications cannot effectively translate into an improvement of the
+actual search space.
+
+To address this, we formulate the tuning process as follows: under a
+limited budget, each round jointly determines the active parameter set
+\(A_t\), the recommendation region \(R_t\), and the candidate generation
+budget \(b_t\) based on execution evidence, aiming to maximize performance
+improvement under finite evaluations. These three elements collectively
+determine which configurations can be proposed and evaluated. Around this
+joint revision goal, we face three interrelated and coupled challenges:
+
+\textbf{C1: Configuration-dependent parameter value identification and
+its coordination with regions and budgets.} Whether a parameter is worth
+continuing to search depends not only on its own potential but is also
+constrained by whether its current recommendation region is misaligned
+and whether sufficient candidate budget supports it. Low local gains may
+stem from the parameter being exhausted, or from region misplacement or
+budget insufficiency. The system must jointly determine parameter
+retention and its supporting budget under limited observations. Unlike
+dynamic-selection methods that adjust only the active knob
+set~\cite{dot}, our parameter-retention decision also accounts for the
+region state and budget support, preventing a low gain caused by region
+misplacement from being misread as parameter exhaustion.
+
+\textbf{C2: Matching prior recommendation regions with actual
+distributions under budget constraints.} Documentation and LLMs often
+lack explicit tuning advice for a specific knob, and most recommendations
+are broad and may not suit the current workload, hardware, and
+configuration combination. Effective region revisions, such as shifting
+or expanding, require corresponding candidate-budget support; blindly
+expanding a region without allocating sufficient candidates leads only to
+ineffective exploration. The system must balance region refinement,
+expansion, and budget allocation based on execution evidence.
+
+\textbf{C3: Cross-domain knowledge coverage and fair allocation of
+limited budgets.} Database tuning spans multiple specialized domains, and
+a single agent can hardly cover the configuration rules of all domains,
+making biased or missed judgments likely. Introducing multiple domain
+experts mitigates this, but their suggestions may overlap or conflict. If
+evaluation budgets are allocated by generation volume, some valuable
+parameter directions may be misjudged for lack of evidence, disrupting
+the feedback loop between parameter and region revisions. The system must
+ensure fair evaluation budgets so that feedback evidence can effectively
+guide the next round of joint revision.
+
+To solve these challenges, we propose \textbf{JointTune}, an LLM-assisted
+database tuning framework that jointly revises the effective search space
+through execution feedback. JointTune organizes multi-domain experts to
+propose configuration suggestions and uses real execution evidence to
+uniformly model the active parameters, recommendation regions, and
+candidate budgets as a search-space state updated with evidence, enabling
+the domain-knowledge-guided search to gradually adapt to the target
+environment.
+
+Our main contributions are as follows:
+
+\begin{enumerate}
+    \item \textbf{An execution-feedback-driven joint search-space revision
+    framework.} We uniformly model the active parameter set,
+    recommendation regions, and candidate generation budgets as a
+    search-space state updated with evidence. Within this framework, we
+    design mutually coupled mechanisms to address the decoupling between
+    the search space and budget caused by independently revising any
+    single element.
+
+    \item \textbf{A conditional-potential-driven dynamic parameter
+    activation and region reshaping mechanism.} This mechanism combines
+    the potential gains under the current configuration with actual
+    exploration evidence to dynamically adjust the active parameter set.
+    It revises recommendation regions based on execution feedback,
+    enabling the search to flexibly switch between local refinement and
+    cross-region exploration, breaking the limitations of static prior
+    ranges.
+
+    \item \textbf{A feedback-guided multi-expert equal-size budget
+    allocation mechanism.} This mechanism utilizes domain experts to
+    generate complementary configurations and employs equal-size audits
+    to reduce the impact of candidate-quantity differences on opportunity
+    comparison. The updated budgets are accurately fed back into the
+    revision of parameters and regions, ensuring that feedback evidence
+    can fairly guide the next round of joint optimization.
+\end{enumerate}
+
+\section{Related Work}
+
+\subsection{Heuristic Methods}
+Early automated tuning systems predominantly relied on heuristic rules
+or predefined search strategies. Rule-based tools, such as
+PGTune~\cite{pgtune}, directly derive configurations based on hardware
+specifications. Search-based methods like OpenTuner~\cite{opentuner}
+integrate multiple search algorithms, while BestConfig~\cite{bestconfig}
+combines sampling with recursive divide-and-conquer. Although these
+methods are lightweight and easy to deploy, their effectiveness heavily
+depends on manually designed rules or strong assumptions about the tuning
+task. Consequently, they struggle to capture the highly non-linear
+interactions among knobs under complex workload conditions.
+
+\subsection{Bayesian Optimization-Based Methods}
+Bayesian Optimization (BO)-based methods approximate the performance
+landscape using surrogate models to balance exploration and exploitation.
+Specifically, iTuned~\cite{ituned} applies Gaussian Processes,
+OtterTune~\cite{ottertune} integrates factor analysis and transfer
+learning, while SMAC~\cite{smac} and ResTune~\cite{restune} adopt Random
+Forests and meta-learning, respectively. To address high-dimensional
+spaces, LlamaTune~\cite{llamatune} employs random projections and knob
+bucketing. Recently, BO has been extended to dynamic scenarios:
+OnlineTune~\cite{onlinetune} introduces contextual BO with spatial
+partitioning, and SafeTune~\cite{safetune} filters high-risk
+configurations via semi-supervised anomaly detection. Notably,
+DOT~\cite{dot} combines Recursive Feature Elimination with
+Cross-Validation (RFECV) and a likelihood ratio test to dynamically prune
+and expand the active knob set during tuning, representing the
+dynamic-selection route. However, DOT's decisions mainly act on knob
+inclusion and removal, while value regions and candidate budgets are
+handled implicitly by the downstream optimizer rather than being treated
+as explicit joint decision variables; when the effective region shifts
+across configurations or the candidate budget is insufficient to cover
+that region, statistical tests on the knob set alone cannot distinguish
+an exhausted parameter from a misaligned region or an insufficient
+budget. This differs from our goal of jointly revising active knobs,
+value regions, and candidate budgets. Despite these advances, building
+reliable surrogate models in high-dimensional spaces typically still
+requires hundreds of real workload evaluations.
+
+\subsection{Reinforcement Learning-Based Methods}
+Reinforcement Learning (RL) formulates tuning as a Markov Decision
+Process to learn configuration policies via interactions.
+CDBTune~\cite{cdbtune} and QTune~\cite{qtune} utilize Deep Deterministic
+Policy Gradient (DDPG), with QTune further incorporating query features
+to enhance decision-making. HUNTER~\cite{hunter} and
+WATuning~\cite{watuning} improve policy generalization through rule
+extraction and attention mechanisms, respectively. To handle dynamic
+workloads, MR-MDRL~\cite{mrmdrl} constructs reward signals from native
+runtime metrics for dynamic multi-objective trade-offs, while
+CTuner~\cite{ctuner} proposes a causal RL framework for NoSQL databases.
+Nevertheless, RL methods still suffer from training instability and low
+sample efficiency in large-scale knob spaces.
+
+\subsection{LLM-Based Database Tuning Methods}
+Recently, Large Language Models (LLMs) have been widely introduced into
+database tuning to alleviate cold-start issues and high search costs.
+Many studies utilize LLMs to extract and organize structured knowledge to
+reduce the search space. For example, GPTuner~\cite{gptuner} and
+DB-BERT~\cite{dbbert} extract knowledge from manuals and forums to filter
+redundant knobs and recommend values. MCTuner~\cite{mctuner} employs a
+Mixture-of-Experts (MoE) mechanism to evaluate key knobs and reduce
+ranges, subsequently delegating the search to hierarchical spatial
+decomposition and BO. KnobCF~\cite{knobcf} and Rabbit~\cite{rabbit}
+organize reliable knowledge through uncertainty-aware classification and
+retrieval-augmented generation (RAG), respectively, to minimize
+ineffective evaluations.
+
+Furthermore, some works enable LLMs to participate more deeply in
+candidate generation and search control. AgentTune~\cite{agenttune}
+decomposes the tuning task into multiple agents and uses tree search to
+directly generate candidate configurations. E2ETune~\cite{e2etune}
+fine-tunes a generative model to predict configurations end-to-end based
+on workload characteristics. Additionally, recent studies like
+SysInsight~\cite{sysinsight} explore extracting verifiable tuning clues
+from database source code and runtime diagnostics to guide the parameter
+tuning process.
+\section{Problem Definition}\label{sec:problem}
+
+Let \(K\) be the set of tunable knobs in a database management system (DBMS), and a configuration vector be \(x = (x_1, \ldots, x_d)\), where \(d=|K|\). All configurations satisfying database resource limits, type constraints, and activation conditions form the legal search space \(\mathcal{X}\).
+
+Given a specific workload and hardware environment, evaluating a configuration \(x\) requires executing the target workload, and its true performance metric is represented by a function \(f(x)\). To unify the optimization direction, we transform throughput or latency into a utility \(u(x)\) to be maximized (e.g., transforming the latency into a normalized negative value, or converting throughput into a logarithmic value).
+
+The goal of database parameter tuning is to find the optimal configuration that maximizes the utility under a limited real execution budget \(T\):
+\begin{equation}
+x^* = \arg\max_{x \in \mathcal{X}} u(x), \quad \text{s.t.} \quad \text{Cost}(x) \le T.
+\end{equation}
+
+\section{Method}\label{sec:method}
+
+\subsection{Overview}\label{sec:overview}
+
+The overall workflow of JointTune is illustrated in
+Figure~\ref{fig:ct-framework} and comprises two core stages.
+
+\noindent\textbf{Stage 1: Evidence-guided search-state revision.}
+The first stage addresses how the search structure should change given
+limited execution evidence. JointTune fits a shared Gaussian process (GP)
+on successful observations and forms a bounded action menu: keep the
+current structure, reshape an incumbent region, exchange an eligible group
+for a stronger inactive one, or combine exchange with reshaping a retained
+partner. Each action induces a complete search state: its regions determine
+audit points, audit opportunities determine quotas, and these quotas enter
+the action score. Experts review the posterior evidence in their regular
+requests and return legal patches and region suggestions. The controller
+builds equal-size audits for every candidate state and selects a state only
+when the predictive model is calibrated and audits are available; otherwise
+it retains the current structure. The output of this stage is a revised
+active knob set, value regions, and mode quotas.
+
+\noindent\textbf{Stage 2: Audited allocation and informative trial selection.}
+The second stage addresses where limited candidate capacity should be
+invested on the revised structure. The selected state generates candidates
+through group modes and reserved reference, cross-domain, and coverage
+channels. The controller deduplicates the candidates, scores them with
+noisy expected improvement, and may replace the highest-EI candidate by one
+with higher information about which direction deserves the next quota;
+scheduled coverage and re-entry probes override this replacement. After one
+candidate is executed, a successful outcome updates the GP, local coverage,
+residuals, and audit credit, whereas a failed attempt remains in history but
+does not train the utility GP. The updated evidence enters the next round of
+state revision, closing the feedback loop.
+
+JointTune couples search-space revision with candidate-capacity allocation
+in a single feedback loop: Stage~1 uses posterior evidence to compare
+retaining, reshaping, and replacing, deciding what to search and where;
+Stage~2 allocates real execution budget on the selected structure through
+equal-size audits and informative trials, deciding how much to invest in
+each direction. Audit opportunities enter the action score of Stage~1, and
+execution outcomes enter the next round of structural revision. The three
+search decisions therefore share the same execution evidence and the same
+posterior model, rather than being optimized separately and then combined.
+This design lets limited evaluations revise search structure and capacity
+jointly, avoiding wasted budget on low-potential directions and preventing
+a newly admitted structure from being under-explored.
+
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox{0.93\linewidth}{\centering\color{red}
+Framework placeholder: expert initialization $\rightarrow$ evidence-guided
+search-state alternatives $\rightarrow$ audits, quotas, and joint revision
+$\rightarrow$ candidate selection and execution $\rightarrow$ feedback.}}
+\caption{Execution feedback connects search-state revision and allocation.}
+\end{figure}
+
+\begin{algorithm}[htbp]
+\caption{JointTune: joint search-state revision}
+\label{alg:JointTune}
+\begin{algorithmic}[1]
+\Require $\mathcal X,E,T,N_g,N_r,m,d_a,\gamma$, shared IID design $X_0$
+\State $L\gets\textsc{Evaluate}(X_0)$; $\mathcal D\gets\textsc{Successful}(L)$
+\State $(A,R,M)\gets\textsc{Initialize}(E,L,\mathcal X,d_a)$
+\State $w_{\rm end}\gets\lceil\gamma(T-|X_0|)\rceil$
+\For{$t=|X_0|,\ldots,T-1$}
+ \State $P_t\gets\textsc{FitGP}(\mathcal D)$; $\bar x\gets\textsc{BestConfig}(\mathcal D)$
+ \State $\mathcal V_t\gets\textsc{Configs}(L)$; $M\gets\textsc{ResetContext}(M,\bar x)$
+ \State $\mathcal K\gets\{a_0\}$
+ \If{$t<T-w_{\rm end}$}
+  \State $\mathcal K\gets\mathcal K\cup\textsc{BestReshape}(A,R,P_t,M)$
+  \If{$\textsc{ReviewDue}(t)$}
+   \State $\mathcal K\gets\mathcal K\cup\textsc{BestExchangeAndCombined}(A,R,P_t,M)$
+  \EndIf
+ \EndIf
+ \State $\mathcal P\gets\textsc{Experts}(E,L,\textsc{Evidence}(\mathcal K,P_t))$
+ \State $\mathcal P\gets\textsc{ValidateOrFallback}(\mathcal P,R,\bar x)$
+ \State $\mathcal Z\gets\textsc{AuditStates}(\mathcal K,\mathcal P,P_t,N_g,m,\mathcal V_t)$
+ \State $(A',R',b,\mathcal A,m_t)\gets\mathcal Z[a_0]$
+ \If{$t<T-w_{\rm end}\land\textsc{Calibrated}(M)\land m_t>0$}
+  \State $(A',R',b,\mathcal A,m_t)\gets\textsc{JointSelect}(\mathcal Z,P_t)$
+ \EndIf
+ \State $(A,R)\gets(A',R')$; $M\gets\textsc{RecordState}(M,A,R,t)$
+ \State $\mathcal Q_t\gets\textsc{Compile}(A,R,\bar x,\mathcal P)$
+ \State $\mathcal C_g\gets\textsc{Fill}(\mathcal Q_t,b,\mathcal A,\mathcal V_t)$
+ \State $\mathcal C_r\gets\textsc{Reserve}(N_r,\mathcal Q_t,M,\mathcal V_t)$
+ \State $\mathcal C\gets\textsc{Deduplicate}((\mathcal C_g\cup\mathcal C_r)\setminus\mathcal V_t)$
+ \State $x\gets\arg\max_{x'\in\mathcal C}a_t(x')$
+ \If{$t<T-w_{\rm end}\land\textsc{Calibrated}(M)\land m_t>0$}
+  \State $\mathcal S\gets\textsc{Shortlist}(\mathcal C)$
+  \State $\bigl(\widehat{\mathcal I}_t(x),\sigma_{\rm MC}(x)\bigr)_{x\in\mathcal S}\gets\textsc{Info}(P_t,\mathcal A,\mathcal S)$
+  \State $j\gets\arg\max_{x'\in\mathcal S}\widehat{\mathcal I}_t(x')$
+  \If{$\widehat{\mathcal I}_t(j)>2\sigma_{\rm MC}(j)$} \State $x\gets j$ \EndIf
+ \EndIf
+ \If{$\textsc{ProbeDue}(t,M)\land t<T-w_{\rm end}$}
+  \State $x\gets\textsc{ReservedProbe}(\mathcal C,M)$
+ \EndIf
+ \State $(y,s)\gets\textsc{Execute}(x)$; $L\gets L\cup\{(x,y,s)\}$
+ \If{$s=\mathrm{SUCCESS}$}
+  \State $\mathcal D\gets\mathcal D\cup\{(x,y)\}$; $M\gets\textsc{UpdateEvidence}(M,x,y,P_t,\mathcal A)$
+ \Else
+  \State $M.\mathrm{failed}\gets M.\mathrm{failed}\cup\{x\}$
+ \EndIf
+\EndFor
+\State \Return $\textsc{BestConfig}(\mathcal D)$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Expert-Guided Initialization}\label{sec:initialization}
+
+Four instances of the same LLM specialize in memory, concurrency and
+execution, storage and WAL, and query optimization. They receive legal
+domains, hardware/workload descriptions, and the default plus nine shared
+IID measurements. Each returns regions, sparse patches, and
+high/medium/low priority ratings on a common knob set.
+
+MCTuner ranks knobs using weighted expert scores~\cite{mctuner}.
+Relying only on such scores risks self-promotion: an expert may rate a knob
+highly even when uncertain about it within its own group, which can suppress
+knobs owned by other experts. JointTune therefore separates priority from
+disagreement. Entropy provides an objective, cross-expert measure of overall
+uncertainty for each knob, preventing highly uncertain knobs from entering
+tuning prematurely. With $n_{j,\ell}$ valid ratings at level $\ell$, total
+$n_j$, and smoothing $\alpha$, define
+\begin{equation}
+ \widehat p_{j,\ell}=\frac{n_{j,\ell}+\alpha}{n_j+3\alpha},\qquad
+ H_j^{\rm sel}=-\frac{\sum_\ell\widehat p_{j,\ell}
+                              \log\widehat p_{j,\ell}}{\log3}.
+ \label{eq:ct-initial-entropy}
+\end{equation}
+Priority is $s_j=\widehat p_{j,\mathrm{high}}+
+0.5\widehat p_{j,\mathrm{medium}}$. After protected knobs and domain
+representatives, a quarter of remaining active slots, rounded up, goes to
+high-entropy knobs with $s_j\geq0.5$; other slots follow priority.
+Posterior gain breaks ties. Missing ratings are excluded, and unused
+verification slots return to priority selection. Entropy preserves
+opportunities to test disputed judgments; subsequent decisions depend on
+execution evidence. Initial regions use bounded numerical centers/widths
+or legal discrete preferences.
+
+\subsection{Joint Search-State Revision}\label{sec:knob-selection}
+
+We first specify the shared model and the budget accounting. A shared GP
+models full configurations with a Mat\'ern-$5/2$ ARD kernel, normalized
+numerical and ordinal coordinates, categorical indicators, and activation
+masks. Experts see the complete execution history and propose legal changes;
+the GP supplies the common utility evidence used to compare their proposals.
+The execution budget $T$ counts workload evaluations, including initial
+configurations, failed attempts, and reserved trials. Candidate capacity
+$N=N_g+N_r$ separates group-mode quotas from reference and coverage channels;
+each group quota includes $m$ audit slots, with $N_g\geq b_{\min}\geq m\geq1$.
+Mode admission enforces
+\begin{equation}
+\begin{aligned}
+ 1\leq|\mathcal H_t|&\leq\left\lfloor N_g/b_{\min}\right\rfloor,\\
+ N_{\rm rem}&=N_g-|\mathcal H_t|b_{\min}\geq0,\qquad
+ \sum_hb_{h,t}=N_g.
+\end{aligned}
+\label{eq:ct-accounting}
+\end{equation}
+Modes with identical groups are merged. Posterior probes consume
+computation, not execution slots.
+
+Legal probes of group $C$ modify its knobs around $\bar x_t$, keeping
+other coordinates fixed. For a joint posterior utility draw $U$, let
+$\Delta_{C,t}=\max_x[U(x)-U(\bar x_t)]$ over those probes.
+Conditional opportunity comprises $p_{C,t}=\Pr(\Delta_{C,t}>\delta)$ and
+$g_{C,t}=\mathbb E[(\Delta_{C,t})_+]$, conditioned on $\mathcal D_t$.
+Throughput uses utility $y=\log(f/f_0)$, and latency uses
+$y=\log(f_0/f)$; $\delta=0.01$ is approximately a one-percent gain.
+
+The action menu has four slots: keep; reshape a target incumbent; exchange
+it for the strongest feasible inactive group; and combine the exchange
+with reshaping a retained partner. On exchange reviews, the target is the
+lowest-$g$ retirement-eligible group; otherwise it is the lowest-$g$ active
+group. Alternatives are ordered by decreasing $g$. Within each slot,
+retain the legal variant with highest preliminary equal-probe gain;
+ties use fewer changes, then knob identifiers. Missing slots are omitted.
+An exchange may admit at most a bounded number of knobs and must preserve
+protected knobs, activation parents, and supported joint groups. It is
+considered periodically; region-only actions remain available between
+reviews.
+
+For each action $a$, form equal-size mode audits
+$\mathcal A_{h,t}(a)$ and compute its quota $b_h(a)$ by
+Equation~\ref{eq:ct-budget-update}. Unchanged distributions reuse the same
+audits across actions. First, measure the positive utility gain available
+in each mode and aggregate it using the state's candidate shares:
+\begin{equation}
+\begin{aligned}
+ D_h(a;U)&=\max_{x\in\mathcal A_{h,t}(a)}[U(x)-U(\bar x_t)-\delta]_+,\\
+ G_t(a;U)&=\sum_h\frac{b_h(a)}{N_g}D_h(a;U).
+\end{aligned}
+\label{eq:ct-state-opportunity}
+\end{equation}
+$G_t$ is the expected best audited gain of a mode drawn according to
+candidate shares. It changes with both the region and the capacity assigned
+to that region. Next, compare each action with $a_0$, which retains the
+current knobs and regions, using paired posterior draws:
+\begin{equation}
+\begin{aligned}
+ \mu_t(a)&=\mathbb E[G_t(a;U)-G_t(a_0;U)\mid\mathcal D_t],\\
+ \pi_t(a)&=\Pr(G_t(a;U)>G_t(a_0;U)\mid\mathcal D_t).
+\end{aligned}
+\label{eq:ct-action-advantage}
+\end{equation}
+Mean advantage measures the magnitude of the opportunity change;
+superiority probability measures posterior support for its sign.
+Retain actions passing both tests, then choose the strongest:
+\begin{equation}
+\begin{aligned}
+ \mathcal K_t^+&=\{a_0\}\cup\{a\in\mathcal K_t:\mu_t(a)>\delta,\ \pi_t(a)\geq\rho\},\\
+ a_t^*&=\arg\max_{a\in\mathcal K_t^+}\mu_t(a),\qquad\rho=0.8.
+\end{aligned}
+\label{eq:ct-joint-action}
+\end{equation}
+The chosen state is $(A(a_t^*),R(a_t^*),b(a_t^*))$. An exchange must also
+beat the best admissible incumbent reshape by the same tests; weak results
+in a restrictive range alone cannot justify retirement. Ties retain the
+current state, then favor fewer changes.
+
+An outgoing knob requires a minimum residence period, a minimum number of
+successful local changes, distinct tested values, one fresh test after a
+context reset, and no recent gain above $\delta$. Coverage and re-entry
+trials are scheduled periodically; these executed trials supply evidence
+for under-tested knobs, whereas generated or posterior-sampled points do
+not. The final $\gamma$ fraction freezes structural revision and uses
+improvement-based selection.
+
+Coverage checks use predictions recorded before execution. For each
+successful adaptive trial, store the standardized residual:
+\begin{equation}
+ e_i=\frac{|y_i-\mu_i^-|}{\sqrt{v_i^-+\tau_i^2}},\qquad
+ \kappa_t=\frac{1}{|W_t|}\sum_{i\in W_t}\mathbf1\{e_i\leq1.96\}.
+ \label{eq:ct-calibration}
+\end{equation}
+$\mu_i^-$ and $v_i^-$ are the latent predictive mean and variance,
+$\tau_i^2$ is observation noise, and $W_t$ contains a bounded recent window
+of successful predictions. $\textsc{Calibrated}(M_t)$ is true when at least
+eight such predictions exist and $\kappa_t\geq0.7$. Otherwise we retain
+$A_t,R_t$, use qLogNEI, and continue scheduled executed probes. Records
+include gate pass rates, rejection reasons, and state-change frequencies.
+
+\subsection{Evidence-Guided Regions and Proposals}
+\label{sec:feedback-adaptation}
+
+For numerical regions, legal probes cover an inner scale, the current scale
+$r_j$, and an outer scale. Posterior draw $s$ has best probe $x^{*(s)}$.
+Among draws with gain above $\delta$, let
+$d_j^{(s)}=|z_j(x^{*(s)})-c_j|$, using normalized coordinate $z_j$ and
+center $c_j$. Radius and conditional credible interval are
+\begin{equation}
+\begin{aligned}
+ \widehat r_j&=\operatorname{clip}_{\mathcal R_j}Q_{0.8}(d_j^{(s)}),\\
+ [r_j^-,r_j^+]&=\operatorname{clip}_{\mathcal R_j}
+                  [Q_{0.1}(d_j^{(s)}),Q_{0.9}(d_j^{(s)})],\\
+ \mathcal R_j&=[\max(r_{\min},r_{\rm in}r_j),\min(r_{\max},r_{\rm out}r_j)].
+\end{aligned}
+\label{eq:ct-radius}
+\end{equation}
+$Q_\tau$ denotes an empirical posterior quantile. If too few improving
+draws are available, the current radius is retained and the mode is marked
+for verification. The evidence packet gives radius change, interval, the
+unconditional improvement probability, and paired action advantage.
+
+Experts receive this packet in their regular request, approve actions with
+mechanisms, and return at most a bounded number of action-tagged patches
+each. Center shifts are bounded; edited centers are re-scored. Shrinking
+also requires successful points on both sides of the center. Cross-domain
+patches require agreement from their experts. Accepted patches change at
+most a bounded number of actual knobs with bounded total normalized
+movement, including feasibility repairs. Numerical sampling retains a small
+global exploration fraction; discrete preferences enumerate legal values.
+
+The controller compiles approved patches and regions into $\mathcal Q_t$,
+which stores mode distributions, validated patch seeds, reviewed cross-domain
+patches, and the selected scope/anchor. $\textsc{Fill}$ samples those
+distributions; patches provide seeds within mode quotas and cause no further
+LLM calls. An empty or failed expert response uses its last legal
+distribution projected to the selected scope, or an anchor-centered legal
+fallback. Every failure/fallback is recorded. Posterior references are
+capped at a bounded number of distinct points, with shared audits reused
+across actions. Optional combined and exchange variants are dropped in that
+order if the cap is exceeded; an exchange is never compared without its
+incumbent reshape. The comparison uses one fitted GP and joint posterior
+draws, without additional mandatory LLM requests or workload executions.
+Logs distinguish expansion, contraction, shift, hold, and each gate that
+prevents adoption.
+
+\subsection{Audited Allocation and Informative Trials}
+\label{sec:candidate-selection}
+
+Let $\mathcal V_t$ contain every previously attempted configuration in $L$,
+including $M_t.\mathrm{failed}$. Auditing, $\textsc{Fill}$, and
+$\textsc{Reserve}$ exclude $\mathcal V_t$ before admitting a candidate.
+Each state generates up to $m$ legal, distinct audit points per mode.
+Across actions and modes, use the minimum attainable audit count
+$m_t$; if zero, keep the current state and use the reference channel.
+No points are copied to fill a quota.
+$\textsc{Reserve}(N_r,\mathcal Q_t,M_t,\mathcal V_t)$ supplies legal IID
+reference points, reviewed cross-domain patches, and scheduled coverage or
+re-entry points. It uses the compiled anchor/scope and memory of actual
+coverage, residence, inactive waiting time, and failed attempts. Its union
+with $\textsc{Fill}$ is deduplicated by canonical configuration key and
+filtered against $\mathcal V_t$ again. Deduplication retains the source
+set $S(x)$, and audits are frozen before scoring states or filling quotas.
+For each posterior draw, let $x^\dagger$ be the best audit point. Set
+$J_t=\varnothing$ if $U(x^\dagger)-U(\bar x_t)\leq\delta$, and
+$J_t=S(x^\dagger)$ otherwise. In each state, compute
+\begin{equation}
+\begin{aligned}
+ w_{h,t}&=\sum_{S:h\in S}\frac{\Pr(J_t=S\mid\mathcal D_t)}{|S|},\\
+ b_{h,t}&=b_{\min}+\operatorname{RoundSum}_h\!\left[
+ N_{\rm rem}\frac{\lambda+w_{h,t}}{\sum_g(\lambda+w_{g,t})}\right],
+ \qquad\lambda=0.02.
+\end{aligned}
+\label{eq:ct-budget-update}
+\end{equation}
+Remainder-preserving rounding maintains total $N_g$. Audits already occupy
+quota slots; additional generation does not enlarge them. Group credit is
+split across contributing sources, and expert emphasis derives from
+$v_e=\sum_{h:e\in E_h}b_h/|E_h|$. A changed distribution receives fresh
+credit before its quota affects the structural decision.
+
+On the selected state's candidate pool $\mathcal C_t$, let $a_t(x)$ be
+noisy expected improvement, computed by qLogNEI with batch size one.
+The shortlist contains a bounded number of points from
+$\mathcal C_t^+=\{x:a_t(x)\geq\eta\max_{x'}a_t(x')\}$, $\eta=0.8$.
+Within it, evaluate information about the frozen audit label:
+\begin{equation}
+ \mathcal I_t(x)=H(J_t\mid\mathcal D_t)-
+ \mathbb E_{Y_x\mid\mathcal D_t}
+       [H(J_t\mid\mathcal D_t,(x,Y_x))].
+ \label{eq:ct-information}
+\end{equation}
+For $F$ independent noisy fantasies, let $R_f(x)$ be the prior label
+entropy minus conditional label entropy, each estimated with latent draws
+and common random numbers across candidates. The estimator and its outer
+Monte Carlo standard error are
+\begin{equation}
+ \widehat{\mathcal I}_t(x)=\frac1F\sum_{f=1}^F R_f(x),\qquad
+ \sigma_{\rm MC}(x)=\sqrt{\frac{\sum_f
+ (R_f(x)-\widehat{\mathcal I}_t(x))^2}{F(F-1)}}.
+ \label{eq:ct-mc-error}
+\end{equation}
+$\textsc{Info}$ returns one estimate/error pair
+$(\widehat{\mathcal I}_t(x),\sigma_{\rm MC}(x))$ for every shortlisted $x$.
+Choose the largest $\widehat{\mathcal I}_t$ only when calibrated, $m_t>0$,
+and its estimate exceeds $2\sigma_{\rm MC}$; otherwise maximize qLogNEI.
+This error estimates outer fantasy variability, separately from predictive
+coverage. Better opportunity identification can redirect later candidate
+shares; the EI guard retains strong immediate prospects while testing
+allocation-relevant alternatives. Reserved coverage/re-entry trials have
+priority, and the final $\gamma$ fraction uses qLogNEI.
+
+Successful trials update observations, coverage, residuals, and audit
+credit; failures remain in history without training the utility GP.
+Algorithm~\ref{alg:JointTune} summarizes the loop.
+
+% ============================================================
+% TODO before submission (not part of the main text):
+%
+% 1. Replace the red framework placeholder with the final figure.
+%
+% 2. Add Table tab:ct-symbols defining X, E, T, n0, N, N_g, N_r, m,
+%    b_min, N_rem, d_a, delta, eta, rho, lambda, alpha, gamma, kappa,
+%    F, and the calibration window.
+%
+% 3. Add Table tab:ct-settings with all default values and controller
+%    periods, including:
+%      N=100, N_g=80, N_r=20, m=4, b_min=5;
+%      mode cap and overflow retention rule;
+%      gamma=0.1 and boundary handling of w_end;
+%      review interval (every six rounds) and at most two new knobs;
+%      coverage every third adaptive round, re-entry every eighth;
+%      calibration window (last at most 20 predictions) and minimum 8;
+%      radius inner/outer scales 0.8/1.5, bounds 0.025/0.5;
+%      patch limit 4 knobs, movement limit 1.5, global exploration 10%;
+%      posterior reference cap 128, shortlist 16, F=16 fantasies,
+%      256 latent draws, fewer than 32 improving draws threshold.
+%
+% 4. Decide whether Algorithm 1 should show the mode-cap merge step
+%    explicitly; currently it is described in the text only.
+%
+% 5. In the experiments, report the Calibrated gate pass rate, the
+%    information-selection trigger rate, and a comparison against pure
+%    qLogNEI. Also report LLM call counts/tokens/latency and GP fitting
+%    and posterior-query overhead.
+% ============================================================
+\section{Experiment}\label{sec:experiment}
+
+\subsection{Experiment Setup}\label{sec:setup}
+
+\subsubsection{Target Workload}\label{sec:workload}
+
+We evaluate JointTune on five representative benchmarks covering OLAP,
+OLTP, and HTAP workloads. The OLAP workload is TPC-H, used to assess
+latency optimization on complex analytical queries. The OLTP workloads
+include TPC-C, Twitter, and YCSB, covering standard transaction
+processing, high-concurrency social workloads, and read--write mixed
+workloads, respectively; they are used to assess throughput improvement.
+The HTAP workload is CH-benCHmark, used to evaluate both transactional
+throughput and analytical query latency. These five benchmarks cover the
+main database operation modes from analytical to transactional and from
+single-purpose to hybrid, and are widely adopted in database tuning
+studies. All implementations are sourced from the standard benchmark
+library~\cite{difallah2013oltpbench,leis2015job}, ensuring consistency and reproducibility
+of our setup.
+
+\subsubsection{Hardware and Environment}\label{sec:hardware}
+
+Experiments are conducted on a server equipped with two 12-core Intel
+Xeon E5-2678 v3 processors running at 2.50 GHz, providing 24 physical
+cores and 48 hardware threads, 128 GB of RAM, and a 2 TB hard disk drive
+(HDD). The database runs in a Docker container with persistent
+ext4-backed storage. LLM experts are accessed through the DeepSeek API.
+All compared methods run on the same server, with the same database
+version and the same container configuration, to avoid hardware and
+environment differences.
+
+\subsubsection{Baselines}\label{sec:baselines}
+
+JointTune is implemented in Python, and its LLM experts are accessed
+through the DeepSeek API. We compare against the following seven
+representative tuning methods.
+
+\begin{itemize}
+  \item \textbf{SMAC}~\cite{smac}: a sequential model-based optimization
+        method that adopts a random forest surrogate, which scales well to
+        high-dimensional and categorical input.
+  \item \textbf{GP}~\cite{ituned}: classical Gaussian-process Bayesian
+        optimization, the underlying optimizer of iTuned, which links knob
+        configurations with performance and updates the model with new
+        observations.
+  \item \textbf{CDBtune}~\cite{cdbtune}: an end-to-end cloud database
+        tuning system using deep reinforcement learning, which employs DDPG
+        to generate configurations in high-dimensional continuous space.
+  \item \textbf{Restune}~\cite{restune}: a resource-oriented tuning method
+        that casts configuration tuning as constrained Bayesian optimization
+        and uses historical task data and meta-learning to accelerate cloud
+        database tuning.
+  \item \textbf{OtterTune}~\cite{ottertune}: a classic automatic tuning
+        system based on workload characterization and Gaussian-process
+        Bayesian optimization, which reuses historical tuning experience
+        to recommend configurations.
+  \item \textbf{MCTuner}~\cite{mctuner}: a tuning framework that combines
+        LLM-based mixture-of-experts knob selection with MCTS spatial
+        decomposition, representing the current LLM-guided line of work.
+  \item \textbf{DOT}~\cite{dot}: a dynamic knob selection and online
+        sampling algorithm that uses RFECV to prune low-importance knobs
+        and a likelihood-ratio test to balance exploration and exploitation.
+\end{itemize}
+
+In summary, SMAC~\cite{smac}, GP~\cite{ituned}, Restune~\cite{restune},
+and OtterTune~\cite{ottertune} are Bayesian-optimization based methods;
+CDBtune~\cite{cdbtune} is a reinforcement-learning based method; and
+MCTuner~\cite{mctuner} and DOT~\cite{dot} represent the LLM-guided and
+dynamic-selection routes, respectively. All methods run under the same
+execution budget. For LLM-based methods (MCTuner~\cite{mctuner} and
+JointTune), expert-call overhead is recorded separately and is not
+counted toward the workload execution budget; for GP-based methods, we
+follow OtterTune's~\cite{ottertune} configuration-space processing and
+surrogate-model settings.
+
+\subsubsection{Metrics}\label{sec:metrics}
+
+We adopt relative performance improvement as the primary evaluation
+metric~\cite{e2etune}. For the OLAP workload TPC-H, the objective is to
+minimize query latency, and the improvement is defined as
+\begin{equation}
+  \Delta = \frac{lat_{\mathrm{default}} - lat}{lat_{\mathrm{default}}},
+  \label{eq:delta-latency}
+\end{equation}
+where $lat$ and $lat_{\mathrm{default}}$ denote the 95th-percentile
+latency under the optimized and default configurations, respectively.
+For the OLTP workloads TPC-C, Twitter, and YCSB, the objective is to
+maximize throughput (transactions per second, $tps$), and the
+improvement is defined as
+\begin{equation}
+  \Delta = \frac{tps - tps_{\mathrm{default}}}{tps_{\mathrm{default}}},
+  \label{eq:delta-throughput}
+\end{equation}
+where $tps$ and $tps_{\mathrm{default}}$ denote the throughput under the
+optimized and default configurations, respectively. For the HTAP
+workload CH-benCHmark, we report both transactional throughput and the
+95th-percentile latency of analytical queries to reflect performance
+under mixed workloads. Lower latency and higher throughput are better;
+all figures report relative improvement, where a larger value indicates
+better performance.
+
+\subsubsection{Tuning Settings}\label{sec:tuning-settings}
+
+We use PostgreSQL v14.9 as the target DBMS, and LLM experts are accessed
+through the DeepSeek API. Following prior work~\cite{gptuner,mctuner,cdbtune},
+all methods start from the same 60 knobs and then apply their own
+selection or range-compression mechanisms. For example, MCTuner and
+DBTune use LLM knowledge for knob selection, OtterTune and Restune
+initialize models from historical workloads or resource features, and
+DOT updates the active knob set through dynamic pruning.
+
+For a fair comparison under a controlled execution budget, each method is
+limited to 100 real configuration evaluations, with one configuration
+sampled and evaluated per iteration. For TPC-H, we optimize the
+95th-percentile latency; for TPC-C, Twitter, and YCSB, we optimize
+throughput; for CH-benCHmark, we optimize both transactional throughput
+and the 95th-percentile latency of analytical queries. After each
+evaluation, the target workload is executed, and the database is
+restarted once a method proposes a new knob configuration, since some
+parameters take effect only after a restart.
+
+For Bayesian-optimization based methods (JointTune, SMAC, GP, OtterTune,
+and Restune), the first 10 iterations use Latin hypercube sampling (LHS)
+for cold-start initialization, and the remaining 90 iterations focus on
+configuration optimization. For reinforcement-learning based methods
+(e.g., CDBtune), we follow recent work and avoid retraining the neural
+network on the target workload to reduce the risk of
+overfitting~\cite{zhang2021facilitating}. For JointTune, the execution
+budget $T$ counts only real configuration evaluations; candidate
+generation, posterior probes, and LLM expert calls are not counted
+toward $T$, but their call counts, token consumption, and latency are
+recorded separately to compare the actual tuning overhead across methods.

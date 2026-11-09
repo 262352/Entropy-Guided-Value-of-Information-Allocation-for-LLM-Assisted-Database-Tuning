@@ -8,7 +8,7 @@ from cognitune.config import load_experiment, load_search_space, load_yaml
 from cognitune.evaluator import CommandEvaluator, PostgreSQLBenchBaseEvaluator, SyntheticEvaluator
 from cognitune.llm import CachedLLMClient, DeepSeekLLMClient
 from cognitune.optimizers import (
-    run_cdbtune, run_cognitune, run_cognitune_v2, run_dbtune, run_gp_bo,
+    run_cdbtune, run_cognitune, run_cognitune_v2, run_cognitune_v3, run_dbtune, run_gp_bo,
     run_mctuner, run_ottertune, run_restune, run_smac,
 )
 from cognitune.optimizers.common import set_progress_tag
@@ -72,7 +72,34 @@ def run_method(experiment_path: str | Path, method: str, seed: int, artifacts: s
     evaluator.prepare()
     set_progress_tag(config.workload)
     try:
-        if method in {"cognitune", "cognitune_v2"}:
+        if method == "cognitune_v3":
+            from cognitune.adaptive.proposals import FeedbackExpertProposer, StructuredMockProposer
+            context = {}
+            if config.llm.get("provider") == "deepseek":
+                transport = DeepSeekLLMClient(
+                    model=config.llm.get("model", "deepseek-flash"),
+                    base_url=config.llm.get("base_url", "https://api.deepseek.com"),
+                    timeout_seconds=int(config.llm.get("timeout_seconds", 300)),
+                )
+                proposer = FeedbackExpertProposer(transport, run_dir / "expert_requests")
+                profile_path = resolve_project_path(config.llm["environment_profile"])
+                context = json.loads(profile_path.read_text())
+            elif config.evaluator.get("type", "synthetic") == "synthetic":
+                proposer = StructuredMockProposer()
+            else:
+                raise ValueError("cognitune_v3 real experiments require a configured DeepSeek provider")
+            settings = config.cognitune
+            summary = run_cognitune_v3(
+                space, evaluator, initial, config.budget, seed, config.candidate_pool_size, run_dir,
+                proposer=proposer, cognitive_context=context,
+                active_target=int(settings.get("active_target", 18)),
+                audit_size=int(settings.get("audit_size", 4)), eta=float(settings.get("eta", .8)),
+                posterior_samples=int(settings.get("posterior_samples", 256)),
+                fantasies=int(settings.get("fantasies", 16)),
+                probe_interval=int(settings.get("probe_interval", 8)),
+                search_policy=settings.get("search_policy", "legacy"),
+            )
+        elif method in {"cognitune", "cognitune_v2"}:
             llm_client = None
             cognitive_context = None
             if config.llm.get("provider") == "deepseek":
@@ -95,6 +122,7 @@ def run_method(experiment_path: str | Path, method: str, seed: int, artifacts: s
                     method_name=label,
                     llm_client=llm_client,
                     cognitive_context=cognitive_context,
+                    verbose_diagnostics=bool(config.cognitune.get("verbose_diagnostics", False)),
                 )
             else:
                 summary = run_cognitune(
@@ -168,7 +196,7 @@ def run_method(experiment_path: str | Path, method: str, seed: int, artifacts: s
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description="Run one CogniTune experiment method")
     parser.add_argument("--experiment", required=True)
-    parser.add_argument("--method", required=True, choices=("cognitune", "smac", "gp_bo"))
+    parser.add_argument("--method", required=True, choices=("cognitune", "cognitune_v2", "cognitune_v3", "mctuner", "smac", "gp_bo"))
     parser.add_argument("--seed", required=True, type=int)
     parser.add_argument("--artifacts")
     parser.add_argument("--disable-selection-entropy", action="store_true")

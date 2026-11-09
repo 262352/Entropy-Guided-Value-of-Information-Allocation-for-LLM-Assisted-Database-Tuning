@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import math
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -41,9 +42,12 @@ def run_cognitune_v2(
     active_min: int = 15,
     active_max: int = 20,
     router_interval: int = 10,
+    verbose_diagnostics: bool = False,
 ) -> dict:
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
+    if verbose_diagnostics:
+        (run_dir / "debug_events.jsonl").unlink(missing_ok=True)
     recorder = RunRecorder(run_dir)
     coordinator = AgentCoordinator(space, llm_client or MockLLMClient(space), run_dir / "llm")
     context = cognitive_context or {"seed": seed, "budget": budget}
@@ -77,6 +81,12 @@ def run_cognitune_v2(
         "soft_edges": [edge.__dict__ for edge in graph.edges if edge.edge_type == "soft_relation"],
         "coordination_blocks": [list(block) for block in blocks],
     }
+    if verbose_diagnostics:
+        _debug_event(run_dir, "initialization", {
+            "active_knobs": sorted(active), "protected_knobs": sorted(protected),
+            "gate": gate, "base_scores": base_scores, "ownership": ownership,
+            "expert_weights": expert_weight, **cognitive_log,
+        })
 
     configs: list[dict] = []
     utilities: list[float] = []
@@ -93,6 +103,13 @@ def run_cognitune_v2(
         raw_utilities.append(result.utility)
         _write_diag(diagnostics_path, trial, config, result.utility, best_utility, "shared_initial",
                     active, gate, expert_weight, priority, values, {}, {})
+        if verbose_diagnostics:
+            _debug_event(run_dir, "shared_initial", {
+                "trial": trial, "round": trial + 1, "config": config,
+                "raw_metric": result.raw_metric, "utility": result.utility,
+                "status": result.status, "best_utility": best_utility,
+                "elapsed_seconds": result.elapsed_seconds,
+            })
 
     surrogate = GPPerformanceSurrogate(space)
     llm_calls = len(responses)
@@ -102,6 +119,7 @@ def run_cognitune_v2(
         incumbent = configs[int(np.argmax(utilities))]
         best_before = best_utility
         previous_config = configs[-2] if len(configs) >= 2 else configs[-1]
+        old_active, old_gate, old_weights = set(active), dict(gate), dict(expert_weight)
         gate = _update_gate(space, gate, previous_config, configs[-1], utilities, active, priority, values, ownership, expert_weight)
         surrogate.fit(configs, utilities)
         probes = one_knob_probes(space, incumbent, list(space.by_name), seed * 31_337 + trial, count=2)
@@ -120,6 +138,29 @@ def run_cognitune_v2(
         selected_index = int(np.argmax(scores))
         selected = pool[selected_index]
         prediction = surrogate.posterior([selected])
+        if verbose_diagnostics:
+            changed = {name: {"incumbent": incumbent.get(name), "proposed": selected.get(name)}
+                       for name in space.by_name if incumbent.get(name) != selected.get(name)}
+            versus_previous = {name for name in space.by_name if configs[-1].get(name) != selected.get(name)}
+            top = np.argsort(scores)[-10:][::-1]
+            _debug_event(run_dir, "proposal", {
+                "trial": trial, "round": trial + 1, "incumbent_trial": int(np.argmax(utilities)),
+                "incumbent_utility": best_before, "active_knobs": sorted(active),
+                "active_added": sorted(active - old_active), "active_removed": sorted(old_active - active),
+                "gate_before": old_gate, "gate_after": gate,
+                "expert_weights_before": old_weights, "conditional_improvements": improvements,
+                "pool_size": len(pool), "candidate_sources": dict(Counter(sources)),
+                "selected_source": sources[selected_index], "changed_from_incumbent": changed,
+                "extra_knobs_if_attributed_vs_previous_trial": sorted(versus_previous - changed.keys()),
+                "posterior_mean": float(prediction.mean[0]), "posterior_std": float(prediction.std[0]),
+                "selected_logei": float(logei[selected_index]), "selected_score": float(scores[selected_index]),
+                "best_pool_logei": float(np.max(logei)),
+                "selected_logei_rank": 1 + int(np.sum(logei > logei[selected_index])),
+                "gate_bonus": float(gate_bonus[selected_index]), "expert_bonus": float(expert_bonus[selected_index]),
+                "top_candidates": [{"source": sources[int(i)], "score": float(scores[i]),
+                    "logei": float(logei[i]), "gate_bonus": float(gate_bonus[i]),
+                    "expert_bonus": float(expert_bonus[i])} for i in top],
+            })
         best_utility, result = evaluate_and_record(
             evaluator, recorder, method_name, seed, trial, selected, sources[selected_index], best_utility,
             budget=budget, acquisition_value=float(scores[selected_index]),
@@ -142,8 +183,20 @@ def run_cognitune_v2(
         }
         _write_diag(diagnostics_path, trial, selected, result.utility, best_utility, sources[selected_index],
                     active, gate, expert_weight, priority, values, diag, {})
+        if verbose_diagnostics:
+            _debug_event(run_dir, "outcome", {
+                "trial": trial, "round": trial + 1, "status": result.status,
+                "raw_metric": result.raw_metric, "actual_utility": result.utility,
+                "utility_gain_vs_incumbent": result.utility - best_before,
+                "prediction_error": result.utility - float(prediction.mean[0]),
+                "new_best": result.utility > best_before, "best_utility": best_utility,
+                "expert_weights_before": old_weights, "expert_weights_after": expert_weight,
+                "elapsed_seconds": result.elapsed_seconds, "metadata": result.metadata,
+            })
         if router_interval > 0 and trial >= router_interval and trial % router_interval == 0:
             chosen = sorted(V2_EXPERTS, key=lambda name: expert_weight[name], reverse=True)[:2]
+            if verbose_diagnostics:
+                _debug_event(run_dir, "router_refresh_start", {"trial": trial, "experts": chosen})
             refreshed = coordinator.collect(
                 context | {"round": trial, "incumbent": incumbent, "active_knobs": sorted(active),
                            "current_best_utility": best_utility},
@@ -155,6 +208,10 @@ def run_cognitune_v2(
             priority = priority_statistics(responses, list(space.by_name))
             values = value_statistics(responses, space.knobs)
             grids, dists, per_expert = _aggregate_distributions(responses, space, ownership, expert_weight)
+            if verbose_diagnostics:
+                _debug_event(run_dir, "router_refresh_done", {"trial": trial,
+                    "llm_calls": llm_calls, "llm_tokens": llm_tokens,
+                    "priority_score": {name: item["priority_score"] for name, item in priority.items()}})
         configs.append(selected)
         utilities.append(result.utility)
     summary = recorder.finalize()
@@ -169,6 +226,14 @@ def run_cognitune_v2(
     })
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return summary
+
+
+def _debug_event(run_dir, event, payload):
+    record = {"event": event, "timestamp_utc": datetime.now(timezone.utc).isoformat(), **payload}
+    with (Path(run_dir) / "debug_events.jsonl").open("a", encoding="utf-8") as stream:
+        stream.write(json.dumps(record, sort_keys=True) + "\n")
+    print(f"[CogniTune DEBUG: {event}] {record['timestamp_utc']}\n"
+          + json.dumps(payload, sort_keys=True, indent=2), flush=True)
 
 
 def _uniform(experts):

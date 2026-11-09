@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import http.client
+import logging
+import ssl
 import os
 import time
 import urllib.error
@@ -10,10 +13,19 @@ from typing import Any
 from .base import LLMClient, LLMResult
 
 
+class LLMTransportError(RuntimeError):
+    """Transport failure, distinct from invalid JSON in model content."""
+    def __init__(self, message, *, retryable, status_code=None, attempts=1):
+        super().__init__(message)
+        self.retryable = retryable
+        self.status_code = status_code
+        self.attempts = attempts
+
+
 class DeepSeekLLMClient(LLMClient):
     """OpenAI-compatible DeepSeek client with a stable cache-friendly prefix."""
 
-    def __init__(self, api_key: str | None = None, model: str = "deepseek-flash", base_url: str = "https://api.deepseek.com", timeout_seconds: int = 300, max_tokens: int = 16_000):
+    def __init__(self, api_key: str | None = None, model: str = "deepseek-flash", base_url: str = "https://api.deepseek.com", timeout_seconds: int = 300, max_tokens: int = 16_000, max_transport_attempts: int = 6, retry_base_seconds: float = 10.0):
         self.api_key = api_key or os.environ.get("DEEPSEEK_API_KEY", "")
         if not self.api_key:
             raise ValueError("DEEPSEEK_API_KEY is required for the DeepSeek provider")
@@ -21,6 +33,10 @@ class DeepSeekLLMClient(LLMClient):
         self.endpoint = base_url.rstrip("/") + "/chat/completions"
         self.timeout_seconds = timeout_seconds
         self.max_tokens = max_tokens
+        if max_transport_attempts < 1 or retry_base_seconds < 0:
+            raise ValueError("invalid transport retry settings")
+        self.max_transport_attempts = max_transport_attempts
+        self.retry_base_seconds = retry_base_seconds
 
     def complete(self, prompt: str, *, expert: str, template: str) -> LLMResult:
         parsed = json.loads(prompt)
@@ -67,20 +83,32 @@ class DeepSeekLLMClient(LLMClient):
             headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json", "User-Agent": "CogniTune/0.1"},
             method="POST",
         )
-        last_error = None
-        for attempt in range(3):
+        for attempt in range(self.max_transport_attempts):
             try:
                 with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                     return json.loads(response.read().decode())
             except urllib.error.HTTPError as error:
                 detail = error.read().decode(errors="replace")[:1000]
-                last_error = RuntimeError(f"DeepSeek HTTP {error.code}: {detail}")
-                if error.code not in {408, 429, 500, 502, 503, 504}:
+                retryable = error.code in {408, 429, 500, 502, 503, 504}
+                last_error = LLMTransportError(f"DeepSeek HTTP {error.code}: {detail}",
+                    retryable=retryable, status_code=error.code, attempts=attempt + 1)
+                if not retryable:
                     raise last_error from None
-            except (urllib.error.URLError, TimeoutError) as error:
-                last_error = RuntimeError(f"DeepSeek request failed: {error}")
-            time.sleep(2 ** attempt)
-        raise last_error or RuntimeError("DeepSeek request failed")
+            except (urllib.error.URLError, TimeoutError, ssl.SSLError, ConnectionError,
+                    http.client.IncompleteRead, http.client.RemoteDisconnected,
+                    json.JSONDecodeError, UnicodeDecodeError) as error:
+                # Both connection setup and response-body reads can fail. An
+                # incomplete HTTP body is not a malformed expert recommendation.
+                last_error = LLMTransportError(f"DeepSeek request failed: {error}",
+                    retryable=True, attempts=attempt + 1)
+            if attempt + 1 == self.max_transport_attempts:
+                raise last_error from None
+            delay = min(60.0, self.retry_base_seconds * 2 ** attempt)
+            logging.warning("DeepSeek transport failure (%d/%d, HTTP=%s); retry in %.0fs",
+                            attempt + 1, self.max_transport_attempts,
+                            last_error.status_code or 'connection/read', delay)
+            time.sleep(delay)
+        raise RuntimeError("unreachable transport retry state")
 
 
 def _system_prefix(common: dict[str, Any]) -> str:

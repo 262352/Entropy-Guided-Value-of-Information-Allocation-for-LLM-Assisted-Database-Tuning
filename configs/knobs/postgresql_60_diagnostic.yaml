@@ -1,0 +1,614 @@
+profile_source: .runtime/pg-settings.json
+knobs:
+- name: checkpoint_flush_after
+  type: integer
+  default: 32
+  category: storage
+  restart_required: false
+  description: Number of pages after which previously performed writes are flushed
+    to disk.
+  unit: 8kB
+  lower: 0
+  upper: 256
+  log: false
+- name: wal_buffers
+  type: integer
+  default: 512
+  category: memory
+  restart_required: true
+  description: Sets the number of disk-page buffers in shared memory for WAL.
+  unit: 8kB
+  lower: -1
+  upper: 2048
+  log: false
+- name: backend_flush_after
+  type: integer
+  default: 0
+  category: execution
+  restart_required: false
+  description: Number of pages after which previously performed writes are flushed
+    to disk.
+  unit: 8kB
+  lower: 0
+  upper: 256
+  log: false
+- name: wal_writer_flush_after
+  type: integer
+  default: 128
+  category: storage
+  restart_required: false
+  description: Amount of WAL written out by WAL writer that triggers a flush.
+  unit: 8kB
+  lower: 0
+  upper: 2048
+  log: false
+- name: wal_writer_delay
+  type: integer
+  default: 200
+  category: storage
+  restart_required: false
+  description: Time between WAL flushes performed in the WAL writer.
+  unit: ms
+  lower: 1
+  upper: 1000
+  log: true
+- name: commit_siblings
+  type: integer
+  default: 5
+  category: execution
+  restart_required: false
+  description: Sets the minimum concurrent open transactions before performing commit_delay.
+  lower: 0
+  upper: 100
+  log: false
+  unit: null
+- name: seq_page_cost
+  type: float
+  default: 1.0
+  category: optimizer
+  restart_required: false
+  description: Sets the planner's estimate of the cost of a sequentially fetched disk
+    page.
+  lower: 0.5
+  upper: 2.0
+  log: false
+  unit: null
+- name: commit_delay
+  type: integer
+  default: 0
+  category: execution
+  restart_required: false
+  description: Sets the delay in microseconds between transaction commit and flushing
+    WAL to disk.
+  lower: 0
+  upper: 10000
+  log: false
+  unit: null
+- name: join_collapse_limit
+  type: integer
+  default: 8
+  category: optimizer
+  restart_required: false
+  description: Sets the FROM-list size beyond which JOIN constructs are not flattened.
+  lower: 1
+  upper: 32
+  log: false
+  unit: null
+- name: from_collapse_limit
+  type: integer
+  default: 8
+  category: optimizer
+  restart_required: false
+  description: Sets the FROM-list size beyond which subqueries are not collapsed.
+  lower: 1
+  upper: 32
+  log: false
+  unit: null
+- name: bgwriter_flush_after
+  type: integer
+  default: 64
+  category: storage
+  restart_required: false
+  description: Number of pages after which previously performed writes are flushed
+    to disk.
+  unit: 8kB
+  lower: 0
+  upper: 256
+  log: false
+- name: deadlock_timeout
+  type: integer
+  default: 1000
+  category: concurrency
+  restart_required: false
+  description: Sets the time to wait on a lock before checking for deadlock.
+  unit: ms
+  lower: 100
+  upper: 5000
+  log: false
+- name: wal_sync_method
+  type: categorical
+  default: fdatasync
+  category: storage
+  restart_required: false
+  description: Selects the method used for forcing WAL updates to disk.
+  choices:
+  - fsync
+  - fdatasync
+  - open_sync
+  - open_datasync
+  unit: null
+- name: bgwriter_lru_multiplier
+  type: float
+  default: 2.0
+  category: storage
+  restart_required: false
+  description: Multiple of the average buffer usage to free per round.
+  lower: 0.0
+  upper: 10.0
+  log: false
+  unit: null
+- name: effective_io_concurrency
+  type: integer
+  default: 1
+  category: execution
+  restart_required: false
+  description: Number of simultaneous requests that can be handled efficiently by
+    the disk subsystem.
+  lower: 0
+  upper: 256
+  log: false
+  unit: null
+- name: max_connections
+  type: integer
+  default: 100
+  category: concurrency
+  restart_required: true
+  description: Sets the maximum number of concurrent connections.
+  lower: 32
+  upper: 512
+  log: false
+  unit: null
+- name: max_worker_processes
+  type: integer
+  default: 8
+  category: concurrency
+  restart_required: true
+  description: Maximum number of concurrent worker processes.
+  lower: 4
+  upper: 48
+  log: false
+  unit: null
+- name: max_parallel_workers_per_gather
+  type: integer
+  default: 2
+  category: concurrency
+  restart_required: false
+  description: Sets the maximum number of parallel processes per executor node.
+  lower: 0
+  upper: 16
+  log: false
+  unit: null
+- name: max_parallel_workers
+  type: integer
+  default: 8
+  category: concurrency
+  restart_required: false
+  description: Sets the maximum number of parallel workers that can be active at one
+    time.
+  lower: 0
+  upper: 48
+  log: false
+  unit: null
+- name: max_wal_senders
+  type: integer
+  default: 10
+  category: storage
+  restart_required: true
+  description: Sets the maximum number of simultaneously running WAL sender processes.
+  lower: 0
+  upper: 32
+  log: false
+  unit: null
+- name: shared_buffers
+  type: integer
+  default: 16384
+  category: memory
+  restart_required: true
+  description: Sets the number of shared memory buffers used by the server.
+  unit: 8kB
+  lower: 16384
+  upper: 4194304
+  log: true
+- name: huge_pages
+  type: categorical
+  default: try
+  category: memory
+  restart_required: true
+  description: Use of huge pages on Linux or Windows.
+  choices:
+  - 'off'
+  - try
+  unit: null
+- name: work_mem
+  type: integer
+  default: 4096
+  category: memory
+  restart_required: false
+  description: Sets the maximum memory to be used for query workspaces.
+  unit: kB
+  lower: 1024
+  upper: 1048576
+  log: true
+- name: maintenance_work_mem
+  type: integer
+  default: 65536
+  category: memory
+  restart_required: false
+  description: Sets the maximum memory to be used for maintenance operations.
+  unit: kB
+  lower: 16384
+  upper: 4194304
+  log: true
+- name: logging_collector
+  type: bool
+  default: false
+  category: execution
+  restart_required: true
+  description: Start a subprocess to capture stderr output and/or csvlogs into log
+    files.
+  unit: null
+- name: log_rotation_size
+  type: integer
+  default: 10240
+  category: execution
+  restart_required: false
+  description: Automatic log file rotation will occur after N kilobytes.
+  unit: kB
+  lower: 0
+  upper: 1048576
+  log: false
+- name: log_checkpoints
+  type: bool
+  default: false
+  category: storage
+  restart_required: false
+  description: Logs each checkpoint.
+  unit: null
+- name: log_connections
+  type: bool
+  default: false
+  category: concurrency
+  restart_required: false
+  description: Logs each successful connection.
+  unit: null
+- name: log_disconnections
+  type: bool
+  default: false
+  category: concurrency
+  restart_required: false
+  description: Logs end of a session, including duration.
+  unit: null
+- name: log_min_duration_statement
+  type: integer
+  default: -1
+  category: execution
+  restart_required: false
+  description: Sets the minimum execution time above which all statements will be
+    logged.
+  unit: ms
+  lower: -1
+  upper: 60000
+  log: false
+- name: log_temp_files
+  type: integer
+  default: -1
+  category: storage
+  restart_required: false
+  description: Log the use of temporary files larger than this number of kilobytes.
+  unit: kB
+  lower: -1
+  upper: 1048576
+  log: false
+- name: checkpoint_timeout
+  type: integer
+  default: 300
+  category: storage
+  restart_required: false
+  description: Sets the maximum time between automatic WAL checkpoints.
+  unit: s
+  lower: 60
+  upper: 3600
+  log: false
+- name: checkpoint_completion_target
+  type: float
+  default: 0.9
+  category: storage
+  restart_required: false
+  description: Time spent flushing dirty buffers during checkpoint, as fraction of
+    checkpoint interval.
+  lower: 0.5
+  upper: 1.0
+  log: false
+  unit: null
+- name: min_wal_size
+  type: integer
+  default: 80
+  category: storage
+  restart_required: false
+  description: Sets the minimum size to shrink the WAL to.
+  unit: MB
+  lower: 80
+  upper: 512
+  log: false
+- name: max_wal_size
+  type: integer
+  default: 1024
+  category: storage
+  restart_required: false
+  description: Sets the WAL size that triggers a checkpoint.
+  unit: MB
+  lower: 1024
+  upper: 32768
+  log: false
+- name: checkpoint_warning
+  type: integer
+  default: 30
+  category: storage
+  restart_required: false
+  description: Enables warnings if checkpoint segments are filled more frequently
+    than this.
+  unit: s
+  lower: 0
+  upper: 300
+  log: false
+- name: bgwriter_delay
+  type: integer
+  default: 200
+  category: storage
+  restart_required: false
+  description: Background writer sleep time between rounds.
+  unit: ms
+  lower: 10
+  upper: 1000
+  log: true
+- name: bgwriter_lru_maxpages
+  type: integer
+  default: 100
+  category: storage
+  restart_required: false
+  description: Background writer maximum number of LRU pages to flush per round.
+  lower: 0
+  upper: 1000
+  log: false
+  unit: null
+- name: vacuum_cost_limit
+  type: integer
+  default: 200
+  category: storage
+  restart_required: false
+  description: Vacuum cost amount available before napping.
+  lower: 1
+  upper: 10000
+  log: true
+  unit: null
+- name: autovacuum_max_workers
+  type: integer
+  default: 3
+  category: storage
+  restart_required: true
+  description: Sets the maximum number of simultaneously running autovacuum worker
+    processes.
+  lower: 1
+  upper: 16
+  log: false
+  unit: null
+- name: autovacuum_vacuum_scale_factor
+  type: float
+  default: 0.2
+  category: storage
+  restart_required: false
+  description: Number of tuple updates or deletes prior to vacuum as a fraction of
+    reltuples.
+  lower: 0.01
+  upper: 0.5
+  log: false
+  unit: null
+- name: autovacuum_analyze_scale_factor
+  type: float
+  default: 0.1
+  category: storage
+  restart_required: false
+  description: Number of tuple inserts, updates, or deletes prior to analyze as a
+    fraction of reltuples.
+  lower: 0.005
+  upper: 0.25
+  log: false
+  unit: null
+- name: autovacuum_freeze_max_age
+  type: integer
+  default: 200000000
+  category: storage
+  restart_required: true
+  description: Age at which to autovacuum a table to prevent transaction ID wraparound.
+  lower: 100000000
+  upper: 1000000000
+  log: false
+  unit: null
+- name: vacuum_cost_delay
+  type: float
+  default: 0.0
+  category: storage
+  restart_required: false
+  description: Vacuum cost delay in milliseconds.
+  unit: ms
+  lower: 0.0
+  upper: 10.0
+  log: false
+- name: max_replication_slots
+  type: integer
+  default: 10
+  category: concurrency
+  restart_required: true
+  description: Sets the maximum number of simultaneously defined replication slots.
+  lower: 0
+  upper: 32
+  log: false
+  unit: null
+- name: hot_standby_feedback
+  type: bool
+  default: false
+  category: concurrency
+  restart_required: false
+  description: Allows feedback from a hot standby to the primary that will avoid query
+    conflicts.
+  unit: null
+- name: max_standby_streaming_delay
+  type: integer
+  default: 30000
+  category: concurrency
+  restart_required: false
+  description: Sets the maximum delay before canceling queries when a hot standby
+    server is processing streamed WAL data.
+  unit: ms
+  lower: -1
+  upper: 300000
+  log: false
+- name: effective_cache_size
+  type: integer
+  default: 524288
+  category: memory
+  restart_required: false
+  description: Sets the planner's assumption about the total size of the data caches.
+  unit: 8kB
+  lower: 131072
+  upper: 11534336
+  log: false
+- name: default_statistics_target
+  type: integer
+  default: 100
+  category: optimizer
+  restart_required: false
+  description: Sets the default statistics target.
+  lower: 10
+  upper: 1000
+  log: true
+  unit: null
+- name: random_page_cost
+  type: float
+  default: 4.0
+  category: optimizer
+  restart_required: false
+  description: Sets the planner's estimate of the cost of a nonsequentially fetched
+    disk page.
+  lower: 1.0
+  upper: 8.0
+  log: false
+  unit: null
+- name: jit
+  type: bool
+  default: true
+  category: optimizer
+  restart_required: false
+  description: Allow JIT compilation.
+  unit: null
+- name: max_locks_per_transaction
+  type: integer
+  default: 64
+  category: concurrency
+  restart_required: true
+  description: Sets the maximum number of locks per transaction.
+  lower: 16
+  upper: 1024
+  log: false
+  unit: null
+- name: track_activity_query_size
+  type: integer
+  default: 1024
+  category: optimizer
+  restart_required: true
+  description: Sets the size reserved for pg_stat_activity.query, in bytes.
+  unit: B
+  lower: 1024
+  upper: 1048576
+  log: true
+- name: temp_buffers
+  type: integer
+  default: 1024
+  category: memory
+  restart_required: false
+  description: Sets the maximum number of temporary buffers used by each session.
+  unit: 8kB
+  lower: 100
+  upper: 131072
+  log: true
+- name: max_parallel_maintenance_workers
+  type: integer
+  default: 2
+  category: concurrency
+  restart_required: false
+  description: Sets the maximum number of parallel processes per maintenance operation.
+  lower: 0
+  upper: 16
+  log: false
+  unit: null
+- name: autovacuum_naptime
+  type: integer
+  default: 60
+  category: storage
+  restart_required: false
+  description: Time to sleep between autovacuum runs.
+  unit: s
+  lower: 1
+  upper: 300
+  log: true
+- name: autovacuum_vacuum_cost_limit
+  type: integer
+  default: -1
+  category: storage
+  restart_required: false
+  description: Vacuum cost amount available before napping, for autovacuum.
+  lower: -1
+  upper: 10000
+  log: false
+  unit: null
+- name: autovacuum_vacuum_cost_delay
+  type: float
+  default: 2.0
+  category: storage
+  restart_required: false
+  description: Vacuum cost delay in milliseconds, for autovacuum.
+  unit: ms
+  lower: -1.0
+  upper: 100.0
+  log: false
+- name: max_pred_locks_per_transaction
+  type: integer
+  default: 64
+  category: concurrency
+  restart_required: true
+  description: Sets the maximum number of predicate locks per transaction.
+  lower: 16
+  upper: 1024
+  log: false
+  unit: null
+- name: wal_compression
+  type: bool
+  default: false
+  category: storage
+  restart_required: false
+  description: Compresses full-page writes written in WAL file.
+  unit: null
+hard_constraints:
+- type: sum_le
+  limit: 105490924
+  terms:
+  - knob: shared_buffers
+    multiplier: 8
+  - knob: work_mem
+    multiplier: 32
+  - knob: maintenance_work_mem
+    multiplier: 1
+  - knob: temp_buffers
+    multiplier: 16
+  description: Conservative 80% host-memory envelope with two work_mem operators per
+    terminal

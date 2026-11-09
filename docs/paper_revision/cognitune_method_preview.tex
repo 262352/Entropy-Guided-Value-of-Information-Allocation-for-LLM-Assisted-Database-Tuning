@@ -1,0 +1,32 @@
+% Standalone preview: ONE Method section, including Overview and all mechanisms.
+% Upload this file, cognitune_method.tex, and cognitune_method_reproducibility.tex.
+% For the full manuscript, input the method after Problem Definition and the supplement
+% in the appendix; use the manuscript bibliography instead of the minimal list below.
+\documentclass[runningheads]{llncs}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{newtxtext}
+\usepackage[varvw]{newtxmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{url}
+\usepackage{xcolor}
+\begin{document}
+\pagestyle{plain}
+\raggedbottom
+% Provide the existing Problem Definition label without adding a preview page.
+\setcounter{section}{2}
+\refstepcounter{section}\label{sec:problem}
+\input{cognitune_method}
+\label{ct:method-end}
+\clearpage
+\appendix
+\input{cognitune_method_reproducibility}
+\begin{thebibliography}{1}
+\bibitem{mctuner}
+Yan, Z., Xi, R., Hou, M.: MCTuner: Spatial Decomposition-Enhanced Database Tuning via LLM-Guided Exploration. arXiv:2509.06298 (2025).
+\end{thebibliography}
+\end{document}

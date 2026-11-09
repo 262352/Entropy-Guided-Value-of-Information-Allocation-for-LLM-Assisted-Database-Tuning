@@ -66,3 +66,14 @@ If the external harness is absent, only the synthetic evaluator is available.
 The GitHub repository is:
 
 <https://github.com/262352/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning>
+
+
+## 最新实验结果与运行入口（2026-11-09）
+
+- [三负载七基线100轮结果与复测说明](docs/paper_revision/baseline_100_rounds_README.md)：YCSB/TPC-H/CH-benCHmark共2100条观测；TPC-H使用延迟，保留OtterTune漂移标记。
+- [其余负载基线运行与恢复](docs/RUN_REMAINING_BASELINES.md)、[五小时巡检](docs/BASELINE_MONITOR.md)。
+- [Twitter稳定实验](docs/RUN_TWITTER_STABLE.md)、[消融入口](docs/RUN_TWITTER_ABLATION.md)。
+- [四图及来源说明](docs/paper_revision/figures/throughput_delta_2x2_README.md)、[独立绘图源码](docs/paper_revision/figures/plot_throughput_delta_2x2.py)。Twitter/TPC-C图线按用户提供的示意数列绘制，与真实基线观测分别标记，不是其完整100轮实测证据。
+- [论文方法草稿](docs/paper_revision/cognitune_method.tex)、[方法与当前实现边界](docs/paper_revision/method_notes_zh.md)。草稿不表示全部新增机制已实现或验证。
+
+原始大型测量、数据库、密钥及本机环境不入库，提交的是可检查的结果快照、来源哈希、源代码和说明。

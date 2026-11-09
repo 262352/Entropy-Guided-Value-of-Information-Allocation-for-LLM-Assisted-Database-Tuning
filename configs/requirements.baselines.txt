@@ -1,0 +1,4 @@
+# Additional dependencies for importing the official DOT core; base environment unchanged.
+scikit-optimize==0.10.2
+pandas==2.2.3
+mysql-connector-python==9.2.0

@@ -67,6 +67,43 @@ class GPPerformanceSurrogate:
     def log_ei(self, configs: list[dict]) -> np.ndarray:
         return self.log_expected_improvement(configs)
 
+    def joint_posterior(self, configs: list[dict]) -> tuple[np.ndarray, np.ndarray, float]:
+        """Latent posterior in utility units and observation-noise variance.
+
+        Keep correlations: independent marginal draws give incorrect decisions
+        about both conditional improvement and the best proposal source.
+        """
+        model = self._require_model()
+        x = torch.as_tensor(self.space.encode_many(configs), dtype=torch.double)
+        with torch.no_grad():
+            latent = model.posterior(x)
+            observed = model.posterior(x, observation_noise=True)
+            mean = latent.mean.squeeze(-1).cpu().numpy()
+            covariance = latent.mvn.covariance_matrix.cpu().numpy()
+            noise = (observed.variance - latent.variance).mean().clamp_min(1e-12).item()
+        return mean, covariance, float(noise)
+
+    def log_noisy_expected_improvement(self, configs: list[dict], samples: int = 128, seed: int = 0) -> np.ndarray:
+        """q=1 qLogNEI, integrating uncertainty at every training baseline."""
+        from botorch.acquisition.logei import qLogNoisyExpectedImprovement
+        from botorch.sampling.normal import IIDNormalSampler
+
+        if not configs:
+            return np.empty(0)
+        model = self._require_model()
+        acquisition = qLogNoisyExpectedImprovement(
+            model, X_baseline=model.train_inputs[0],
+            sampler=IIDNormalSampler(torch.Size([samples]), seed=seed),
+            prune_baseline=True,
+        )
+        values = []
+        # Bounded batch sizes keep 60-dimensional real runs within CPU memory.
+        with torch.no_grad():
+            for start in range(0, len(configs), 64):
+                x = torch.as_tensor(self.space.encode_many(configs[start:start + 64]), dtype=torch.double)
+                values.extend(acquisition(x.unsqueeze(-2)).cpu().numpy().reshape(-1))
+        return np.asarray(values)
+
     def predict(self, configs: list[dict]) -> tuple[np.ndarray, np.ndarray]:
         prediction = self.posterior(configs)
         return prediction.mean, prediction.std
