@@ -1,0 +1,8 @@
+{
+  "scripts/baseline_workloads.py": "36836a369bdfd9ce980e5dfc7fe5742912e40b7b3eb8ccb9bfe8d0a6d66c0563",
+  "scripts/run_ours_development.py": "57a2308a56e120fd9bd0fde8e3988fb638119290b54e581df870f6b7bb8ca58a",
+  "src/cognitune/adaptive/proposals.py": "23285a92767558b17e5dc7a7f04068d3d697b4c6d63b14cc68e49b1e95921129",
+  "src/cognitune/adaptive/stable_search.py": "f8fa9224cf3ac92a9acbf82a9fc431330eb8a8bcbdc4ef41c7db6468b6efc6a6",
+  "src/cognitune/experiment/development_review.py": "0612447f3512b1a3c49be7167142e377dcc16d606eed862c7790eadbccc29e43",
+  "src/cognitune/optimizers/cognitune_v3.py": "9b7574ab546ee14b9ce273c4f0e03ec7ead171ba3ec4040adbb96485e7ceab9b"
+}

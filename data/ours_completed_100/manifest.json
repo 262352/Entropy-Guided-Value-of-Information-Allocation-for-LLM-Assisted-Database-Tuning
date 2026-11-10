@@ -1,0 +1,72 @@
+{
+  "created_utc": "2026-11-10T03:02:22.729979+00:00",
+  "content": "Original measured results for completed CogniTune runs only; no display-adjusted or estimated curves.",
+  "workloads": {
+    "ycsb": {
+      "source_attempt": "attempt_00",
+      "evaluations": 100,
+      "initial_evaluations": 10,
+      "initialization": "shared IID configurations, fresh measurements in this suite; no displayed initialization substitution",
+      "metric": "successful requests/second",
+      "all_trials_successful": true,
+      "raw_peak_tps": 3081.8309265261073,
+      "default_before_values": [
+        2223.131512255155,
+        1858.7212964532853,
+        1907.6414351623994
+      ],
+      "utility_default_median": 1907.6414351623994,
+      "final_repeat_tps": [
+        2229.0816639483814,
+        2516.981785389535,
+        2392.5903291016048
+      ],
+      "final_repeat_median_tps": 2392.5903291016048,
+      "comparison_valid": true,
+      "original_trial_trace_sha256": "8b5a949564cf37790522a36948bcf4b8356cc7ebeed49a79dc77d24baa984afb",
+      "source": "artifacts/ours_ycsb_ch_100_dev_v1/ycsb/attempt_00",
+      "development_selection": "Completed selected version of comparator-guided development; includes original validation outcomes."
+    },
+    "chbenchmark": {
+      "source_attempt": "attempt_01",
+      "evaluations": 100,
+      "initial_evaluations": 10,
+      "initialization": "shared IID configurations, fresh measurements in this suite; no displayed initialization substitution",
+      "metric": "transactional TPS; analytical p95 logged separately",
+      "all_trials_successful": true,
+      "raw_peak_tps": 78.18332564660936,
+      "default_before_values": [
+        66.78688149598247,
+        61.63934553449076,
+        68.68327419817896
+      ],
+      "utility_default_median": 66.78688149598247,
+      "final_repeat_tps": [
+        70.11479910286629,
+        60.950850588201114,
+        59.26660661774084
+      ],
+      "final_repeat_median_tps": 60.950850588201114,
+      "comparison_valid": true,
+      "original_trial_trace_sha256": "76cbfc549c51263d82afa8f72edb257735e86882bc174d295fa00eb60a87854f",
+      "source": "artifacts/ours_ycsb_ch_100_dev_v1/chbenchmark/attempt_01",
+      "development_selection": "Completed selected version of comparator-guided development; includes original validation outcomes."
+    }
+  },
+  "files_sha256": {
+    "chbenchmark/default_before.json": "d08ce73d1722705d09ef2c2c5dead25b8fedc390584c3ef59a109df2ad19cdc7",
+    "chbenchmark/implementation.json": "0bc540fa438c5812f8fb372b3646cb679be95cf8ba9913fb96380d5d3697d6a4",
+    "chbenchmark/parameters.json": "8b32c8446e9123f312fa4c4933b1957855c0dae9b7dc93711eeafc4bfc78b452",
+    "chbenchmark/summary.json": "b4b568735707204ae0e9b1de51ea3dfe9d2dcd7e6e1d49c5445bf63664160962",
+    "chbenchmark/trials.csv": "4d7f757582cd58f0cea0ee71d8f1799664024ee661d6694e92e0c52fefe15596",
+    "chbenchmark/trials.jsonl": "76cbfc549c51263d82afa8f72edb257735e86882bc174d295fa00eb60a87854f",
+    "initial_design.json": "ba99b0b37aa0f42ee54de96aa29872a4ecf273dc7273fa1ea5e62c4fcc0dc7fd",
+    "protocol.json": "673d4de5f8230ce7ec110068cfa76edb0af646700f8a1d9fa16314d3719f282e",
+    "ycsb/default_before.json": "9a70dcb552cf8480d3bac69affdc27d2117aaef59572422c438bf520c9c518d1",
+    "ycsb/implementation.json": "0bc540fa438c5812f8fb372b3646cb679be95cf8ba9913fb96380d5d3697d6a4",
+    "ycsb/parameters.json": "c7692b709ec81f3bab6b8f3170ef4303c59dbb1504082b61091262563cfdfb49",
+    "ycsb/summary.json": "eea2c2bda21b5350f7730579d9a4d63a0ee68693c5480e4fd97c1153fb430009",
+    "ycsb/trials.csv": "a52b303f45cc682ce01b547fb5790303886a564ca7573115fc5398d3a009813d",
+    "ycsb/trials.jsonl": "8b5a949564cf37790522a36948bcf4b8356cc7ebeed49a79dc77d24baa984afb"
+  }
+}

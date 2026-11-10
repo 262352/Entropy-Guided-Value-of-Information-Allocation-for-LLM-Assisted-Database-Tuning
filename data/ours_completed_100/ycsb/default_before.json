@@ -1,0 +1,526 @@
+{
+  "cv": 0.09906776201442587,
+  "cv_by_metric": {
+    "raw_metric": 0.09906776201442587
+  },
+  "raw_metric": 1907.6414351623994,
+  "records": [
+    {
+      "benchmark_seconds": 0.0,
+      "config": {
+        "autovacuum_analyze_scale_factor": 0.1,
+        "autovacuum_freeze_max_age": 200000000,
+        "autovacuum_max_workers": 3,
+        "autovacuum_naptime": 60,
+        "autovacuum_vacuum_cost_delay": 2.0,
+        "autovacuum_vacuum_cost_limit": -1,
+        "autovacuum_vacuum_scale_factor": 0.2,
+        "backend_flush_after": 0,
+        "bgwriter_delay": 200,
+        "bgwriter_flush_after": 64,
+        "bgwriter_lru_maxpages": 100,
+        "bgwriter_lru_multiplier": 2.0,
+        "checkpoint_completion_target": 0.9,
+        "checkpoint_flush_after": 32,
+        "checkpoint_timeout": 300,
+        "checkpoint_warning": 30,
+        "commit_delay": 0,
+        "commit_siblings": 5,
+        "deadlock_timeout": 1000,
+        "default_statistics_target": 100,
+        "effective_cache_size": 524288,
+        "effective_io_concurrency": 1,
+        "from_collapse_limit": 8,
+        "hot_standby_feedback": false,
+        "huge_pages": "try",
+        "jit": true,
+        "join_collapse_limit": 8,
+        "log_checkpoints": false,
+        "log_connections": false,
+        "log_disconnections": false,
+        "log_min_duration_statement": -1,
+        "log_rotation_size": 10240,
+        "log_temp_files": -1,
+        "logging_collector": false,
+        "maintenance_work_mem": 65536,
+        "max_connections": 100,
+        "max_locks_per_transaction": 64,
+        "max_parallel_maintenance_workers": 2,
+        "max_parallel_workers": 8,
+        "max_parallel_workers_per_gather": 2,
+        "max_pred_locks_per_transaction": 64,
+        "max_replication_slots": 10,
+        "max_standby_streaming_delay": 30000,
+        "max_wal_senders": 10,
+        "max_wal_size": 1024,
+        "max_worker_processes": 8,
+        "min_wal_size": 80,
+        "random_page_cost": 4.0,
+        "seq_page_cost": 1.0,
+        "shared_buffers": 16384,
+        "temp_buffers": 1024,
+        "track_activity_query_size": 1024,
+        "vacuum_cost_delay": 0.0,
+        "vacuum_cost_limit": 200,
+        "wal_buffers": 512,
+        "wal_compression": false,
+        "wal_sync_method": "fdatasync",
+        "wal_writer_delay": 200,
+        "wal_writer_flush_after": 128,
+        "work_mem": 4096
+      },
+      "elapsed_seconds": 91.11065580090508,
+      "metadata": {
+        "measured_goodput": 2223.131512255155,
+        "measured_type_statistics": {
+          "DeleteRecord": {
+            "count": 13324,
+            "p95_latency_ms": 54.362,
+            "throughput_per_second": 222.06648476090567
+          },
+          "InsertRecord": {
+            "count": 6665,
+            "p95_latency_ms": 68.356,
+            "throughput_per_second": 111.08324233949537
+          },
+          "ReadModifyWriteRecord": {
+            "count": 13230,
+            "p95_latency_ms": 54.584,
+            "throughput_per_second": 220.49981937757295
+          },
+          "ReadRecord": {
+            "count": 66700,
+            "p95_latency_ms": 0.427,
+            "throughput_per_second": 1111.6657560456626
+          },
+          "ScanRecord": {
+            "count": 20042,
+            "p95_latency_ms": 6.147,
+            "throughput_per_second": 334.0330597101525
+          },
+          "UpdateRecord": {
+            "count": 13427,
+            "p95_latency_ms": 54.539,
+            "throughput_per_second": 223.78315002136597
+          }
+        },
+        "measurement_folder": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/artifacts/ours_ycsb_ch_100_dev_v1/ycsb/measurements/preflight/trial_0000/attempt_c545703e60834f0984de5d401c5ac820",
+        "measurement_seconds": 60,
+        "summary": {
+          "Benchmark Type": "ycsb",
+          "Current Timestamp (milliseconds)": 1794214017996,
+          "DBMS Type": "POSTGRES",
+          "DBMS Version": "PostgreSQL 14.9 on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit",
+          "Elapsed Time (nanoseconds)": 60000049149,
+          "Final State": "EXIT",
+          "Goodput (requests/second)": 2601.047869351638,
+          "Latency Distribution": {
+            "25th Percentile Latency (microseconds)": 232,
+            "75th Percentile Latency (microseconds)": 1147,
+            "90th Percentile Latency (microseconds)": 33162,
+            "95th Percentile Latency (microseconds)": 46712,
+            "99th Percentile Latency (microseconds)": 64991,
+            "Average Latency (microseconds)": 7166,
+            "Maximum Latency (microseconds)": 410683,
+            "Median Latency (microseconds)": 314,
+            "Minimum Latency (microseconds)": 98
+          },
+          "Measured Goodput (requests/second)": 2223.131512255155,
+          "Measured Requests": 133395,
+          "Measured Successful Requests": 133388,
+          "Measured Type Statistics": {
+            "DeleteRecord": {
+              "count": 13324,
+              "p95_latency_ms": 54.362,
+              "throughput_per_second": 222.06648476090567
+            },
+            "InsertRecord": {
+              "count": 6665,
+              "p95_latency_ms": 68.356,
+              "throughput_per_second": 111.08324233949537
+            },
+            "ReadModifyWriteRecord": {
+              "count": 13230,
+              "p95_latency_ms": 54.584,
+              "throughput_per_second": 220.49981937757295
+            },
+            "ReadRecord": {
+              "count": 66700,
+              "p95_latency_ms": 0.427,
+              "throughput_per_second": 1111.6657560456626
+            },
+            "ScanRecord": {
+              "count": 20042,
+              "p95_latency_ms": 6.147,
+              "throughput_per_second": 334.0330597101525
+            },
+            "UpdateRecord": {
+              "count": 13427,
+              "p95_latency_ms": 54.539,
+              "throughput_per_second": 223.78315002136597
+            }
+          },
+          "Start timestamp (milliseconds)": 1794213941713,
+          "Throughput (requests/second)": 2223.2481788262544,
+          "isolation": "TRANSACTION_SERIALIZABLE",
+          "scalefactor": "100",
+          "terminals": "16"
+        },
+        "warmup_seconds": 15,
+        "workload": "ycsb"
+      },
+      "raw_metric": 2223.131512255155,
+      "restart_seconds": 0.0,
+      "status": "SUCCESS",
+      "system_metrics": null,
+      "timestamp": "2026-11-09T08:46:58.381095+00:00",
+      "utility": 0.0,
+      "warmup_seconds": 0.0
+    },
+    {
+      "benchmark_seconds": 0.0,
+      "config": {
+        "autovacuum_analyze_scale_factor": 0.1,
+        "autovacuum_freeze_max_age": 200000000,
+        "autovacuum_max_workers": 3,
+        "autovacuum_naptime": 60,
+        "autovacuum_vacuum_cost_delay": 2.0,
+        "autovacuum_vacuum_cost_limit": -1,
+        "autovacuum_vacuum_scale_factor": 0.2,
+        "backend_flush_after": 0,
+        "bgwriter_delay": 200,
+        "bgwriter_flush_after": 64,
+        "bgwriter_lru_maxpages": 100,
+        "bgwriter_lru_multiplier": 2.0,
+        "checkpoint_completion_target": 0.9,
+        "checkpoint_flush_after": 32,
+        "checkpoint_timeout": 300,
+        "checkpoint_warning": 30,
+        "commit_delay": 0,
+        "commit_siblings": 5,
+        "deadlock_timeout": 1000,
+        "default_statistics_target": 100,
+        "effective_cache_size": 524288,
+        "effective_io_concurrency": 1,
+        "from_collapse_limit": 8,
+        "hot_standby_feedback": false,
+        "huge_pages": "try",
+        "jit": true,
+        "join_collapse_limit": 8,
+        "log_checkpoints": false,
+        "log_connections": false,
+        "log_disconnections": false,
+        "log_min_duration_statement": -1,
+        "log_rotation_size": 10240,
+        "log_temp_files": -1,
+        "logging_collector": false,
+        "maintenance_work_mem": 65536,
+        "max_connections": 100,
+        "max_locks_per_transaction": 64,
+        "max_parallel_maintenance_workers": 2,
+        "max_parallel_workers": 8,
+        "max_parallel_workers_per_gather": 2,
+        "max_pred_locks_per_transaction": 64,
+        "max_replication_slots": 10,
+        "max_standby_streaming_delay": 30000,
+        "max_wal_senders": 10,
+        "max_wal_size": 1024,
+        "max_worker_processes": 8,
+        "min_wal_size": 80,
+        "random_page_cost": 4.0,
+        "seq_page_cost": 1.0,
+        "shared_buffers": 16384,
+        "temp_buffers": 1024,
+        "track_activity_query_size": 1024,
+        "vacuum_cost_delay": 0.0,
+        "vacuum_cost_limit": 200,
+        "wal_buffers": 512,
+        "wal_compression": false,
+        "wal_sync_method": "fdatasync",
+        "wal_writer_delay": 200,
+        "wal_writer_flush_after": 128,
+        "work_mem": 4096
+      },
+      "elapsed_seconds": 119.79841732885689,
+      "metadata": {
+        "measured_goodput": 1858.7212964532853,
+        "measured_type_statistics": {
+          "DeleteRecord": {
+            "count": 11232,
+            "p95_latency_ms": 63.475,
+            "throughput_per_second": 184.13114605284173
+          },
+          "InsertRecord": {
+            "count": 5606,
+            "p95_latency_ms": 73.924,
+            "throughput_per_second": 91.90163860151625
+          },
+          "ReadModifyWriteRecord": {
+            "count": 11607,
+            "p95_latency_ms": 64.49,
+            "throughput_per_second": 190.27868698676406
+          },
+          "ReadRecord": {
+            "count": 56512,
+            "p95_latency_ms": 0.433,
+            "throughput_per_second": 926.4262220208503
+          },
+          "ScanRecord": {
+            "count": 17064,
+            "p95_latency_ms": 6.328,
+            "throughput_per_second": 279.73770265720185
+          },
+          "UpdateRecord": {
+            "count": 11361,
+            "p95_latency_ms": 63.248,
+            "throughput_per_second": 186.24590013411103
+          }
+        },
+        "measurement_folder": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/artifacts/ours_ycsb_ch_100_dev_v1/ycsb/measurements/preflight/trial_0001/attempt_a8c71f784c584db18f2165cd8333f1dc",
+        "measurement_seconds": 60,
+        "summary": {
+          "Benchmark Type": "ycsb",
+          "Current Timestamp (milliseconds)": 1794214137901,
+          "DBMS Type": "POSTGRES",
+          "DBMS Version": "PostgreSQL 14.9 on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit",
+          "Elapsed Time (nanoseconds)": 61000000493,
+          "Final State": "EXIT",
+          "Goodput (requests/second)": 2126.1147369151713,
+          "Latency Distribution": {
+            "25th Percentile Latency (microseconds)": 234,
+            "75th Percentile Latency (microseconds)": 1507,
+            "90th Percentile Latency (microseconds)": 40921,
+            "95th Percentile Latency (microseconds)": 53577,
+            "99th Percentile Latency (microseconds)": 72917,
+            "Average Latency (microseconds)": 8588,
+            "Maximum Latency (microseconds)": 411882,
+            "Median Latency (microseconds)": 324,
+            "Minimum Latency (microseconds)": 103
+          },
+          "Measured Goodput (requests/second)": 1858.7212964532853,
+          "Measured Requests": 113399,
+          "Measured Successful Requests": 113382,
+          "Measured Type Statistics": {
+            "DeleteRecord": {
+              "count": 11232,
+              "p95_latency_ms": 63.475,
+              "throughput_per_second": 184.13114605284173
+            },
+            "InsertRecord": {
+              "count": 5606,
+              "p95_latency_ms": 73.924,
+              "throughput_per_second": 91.90163860151625
+            },
+            "ReadModifyWriteRecord": {
+              "count": 11607,
+              "p95_latency_ms": 64.49,
+              "throughput_per_second": 190.27868698676406
+            },
+            "ReadRecord": {
+              "count": 56512,
+              "p95_latency_ms": 0.433,
+              "throughput_per_second": 926.4262220208503
+            },
+            "ScanRecord": {
+              "count": 17064,
+              "p95_latency_ms": 6.328,
+              "throughput_per_second": 279.73770265720185
+            },
+            "UpdateRecord": {
+              "count": 11361,
+              "p95_latency_ms": 63.248,
+              "throughput_per_second": 186.24590013411103
+            }
+          },
+          "Start timestamp (milliseconds)": 1794214060893,
+          "Throughput (requests/second)": 1858.999984975623,
+          "isolation": "TRANSACTION_SERIALIZABLE",
+          "scalefactor": "100",
+          "terminals": "16"
+        },
+        "warmup_seconds": 15,
+        "workload": "ycsb"
+      },
+      "raw_metric": 1858.7212964532853,
+      "restart_seconds": 0.0,
+      "status": "SUCCESS",
+      "system_metrics": null,
+      "timestamp": "2026-11-09T08:48:58.282117+00:00",
+      "utility": 0.0,
+      "warmup_seconds": 0.0
+    },
+    {
+      "benchmark_seconds": 0.0,
+      "config": {
+        "autovacuum_analyze_scale_factor": 0.1,
+        "autovacuum_freeze_max_age": 200000000,
+        "autovacuum_max_workers": 3,
+        "autovacuum_naptime": 60,
+        "autovacuum_vacuum_cost_delay": 2.0,
+        "autovacuum_vacuum_cost_limit": -1,
+        "autovacuum_vacuum_scale_factor": 0.2,
+        "backend_flush_after": 0,
+        "bgwriter_delay": 200,
+        "bgwriter_flush_after": 64,
+        "bgwriter_lru_maxpages": 100,
+        "bgwriter_lru_multiplier": 2.0,
+        "checkpoint_completion_target": 0.9,
+        "checkpoint_flush_after": 32,
+        "checkpoint_timeout": 300,
+        "checkpoint_warning": 30,
+        "commit_delay": 0,
+        "commit_siblings": 5,
+        "deadlock_timeout": 1000,
+        "default_statistics_target": 100,
+        "effective_cache_size": 524288,
+        "effective_io_concurrency": 1,
+        "from_collapse_limit": 8,
+        "hot_standby_feedback": false,
+        "huge_pages": "try",
+        "jit": true,
+        "join_collapse_limit": 8,
+        "log_checkpoints": false,
+        "log_connections": false,
+        "log_disconnections": false,
+        "log_min_duration_statement": -1,
+        "log_rotation_size": 10240,
+        "log_temp_files": -1,
+        "logging_collector": false,
+        "maintenance_work_mem": 65536,
+        "max_connections": 100,
+        "max_locks_per_transaction": 64,
+        "max_parallel_maintenance_workers": 2,
+        "max_parallel_workers": 8,
+        "max_parallel_workers_per_gather": 2,
+        "max_pred_locks_per_transaction": 64,
+        "max_replication_slots": 10,
+        "max_standby_streaming_delay": 30000,
+        "max_wal_senders": 10,
+        "max_wal_size": 1024,
+        "max_worker_processes": 8,
+        "min_wal_size": 80,
+        "random_page_cost": 4.0,
+        "seq_page_cost": 1.0,
+        "shared_buffers": 16384,
+        "temp_buffers": 1024,
+        "track_activity_query_size": 1024,
+        "vacuum_cost_delay": 0.0,
+        "vacuum_cost_limit": 200,
+        "wal_buffers": 512,
+        "wal_compression": false,
+        "wal_sync_method": "fdatasync",
+        "wal_writer_delay": 200,
+        "wal_writer_flush_after": 128,
+        "work_mem": 4096
+      },
+      "elapsed_seconds": 112.4416672619991,
+      "metadata": {
+        "measured_goodput": 1907.6414351623994,
+        "measured_type_statistics": {
+          "DeleteRecord": {
+            "count": 11718,
+            "p95_latency_ms": 62.431,
+            "throughput_per_second": 192.09857120836836
+          },
+          "InsertRecord": {
+            "count": 5777,
+            "p95_latency_ms": 75.136,
+            "throughput_per_second": 94.70502183570098
+          },
+          "ReadModifyWriteRecord": {
+            "count": 11568,
+            "p95_latency_ms": 62.566,
+            "throughput_per_second": 189.63955211967956
+          },
+          "ReadRecord": {
+            "count": 58295,
+            "p95_latency_ms": 0.436,
+            "throughput_per_second": 955.6567851674206
+          },
+          "ScanRecord": {
+            "count": 17330,
+            "p95_latency_ms": 6.336,
+            "throughput_per_second": 284.0986720465117
+          },
+          "UpdateRecord": {
+            "count": 11678,
+            "p95_latency_ms": 63.185,
+            "throughput_per_second": 191.44283278471804
+          }
+        },
+        "measurement_folder": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/artifacts/ours_ycsb_ch_100_dev_v1/ycsb/measurements/preflight/trial_0002/attempt_e0170c9e8d1547e38ca885a1253f9e5e",
+        "measurement_seconds": 60,
+        "summary": {
+          "Benchmark Type": "ycsb",
+          "Current Timestamp (milliseconds)": 1794214250498,
+          "DBMS Type": "POSTGRES",
+          "DBMS Version": "PostgreSQL 14.9 on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit",
+          "Elapsed Time (nanoseconds)": 60999933140,
+          "Final State": "EXIT",
+          "Goodput (requests/second)": 2118.4285514448025,
+          "Latency Distribution": {
+            "25th Percentile Latency (microseconds)": 234,
+            "75th Percentile Latency (microseconds)": 1508,
+            "90th Percentile Latency (microseconds)": 41261,
+            "95th Percentile Latency (microseconds)": 50177,
+            "99th Percentile Latency (microseconds)": 72225,
+            "Average Latency (microseconds)": 8366,
+            "Maximum Latency (microseconds)": 297287,
+            "Median Latency (microseconds)": 323,
+            "Minimum Latency (microseconds)": 105
+          },
+          "Measured Goodput (requests/second)": 1907.6414351623994,
+          "Measured Requests": 116386,
+          "Measured Successful Requests": 116366,
+          "Measured Type Statistics": {
+            "DeleteRecord": {
+              "count": 11718,
+              "p95_latency_ms": 62.431,
+              "throughput_per_second": 192.09857120836836
+            },
+            "InsertRecord": {
+              "count": 5777,
+              "p95_latency_ms": 75.136,
+              "throughput_per_second": 94.70502183570098
+            },
+            "ReadModifyWriteRecord": {
+              "count": 11568,
+              "p95_latency_ms": 62.566,
+              "throughput_per_second": 189.63955211967956
+            },
+            "ReadRecord": {
+              "count": 58295,
+              "p95_latency_ms": 0.436,
+              "throughput_per_second": 955.6567851674206
+            },
+            "ScanRecord": {
+              "count": 17330,
+              "p95_latency_ms": 6.336,
+              "throughput_per_second": 284.0986720465117
+            },
+            "UpdateRecord": {
+              "count": 11678,
+              "p95_latency_ms": 63.185,
+              "throughput_per_second": 191.44283278471804
+            }
+          },
+          "Start timestamp (milliseconds)": 1794214173471,
+          "Throughput (requests/second)": 1907.9693043742245,
+          "isolation": "TRANSACTION_SERIALIZABLE",
+          "scalefactor": "100",
+          "terminals": "16"
+        },
+        "warmup_seconds": 15,
+        "workload": "ycsb"
+      },
+      "raw_metric": 1907.6414351623994,
+      "restart_seconds": 0.0,
+      "status": "SUCCESS",
+      "system_metrics": null,
+      "timestamp": "2026-11-09T08:50:50.833828+00:00",
+      "utility": 0.0,
+      "warmup_seconds": 0.0
+    }
+  ],
+  "stable": true
+}

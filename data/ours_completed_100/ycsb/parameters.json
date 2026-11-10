@@ -1,0 +1,7 @@
+{
+  "active_target": 18,
+  "audit_size": 4,
+  "candidate_pool_size": 100,
+  "eta": 0.8,
+  "probe_interval": 8
+}

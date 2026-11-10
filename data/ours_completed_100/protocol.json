@@ -1,0 +1,27 @@
+{
+  "between_batches_seconds": 300,
+  "budget_per_attempt": 100,
+  "final_metric": "three-repeat median TPS improvement at utility-best configuration; CH also logs analytical p95",
+  "initial_evaluations": 10,
+  "initialization": "persisted shared IID, freshly measured for this development suite",
+  "max_revisions": 2,
+  "measurement": 60,
+  "method": "cognitune_v3_stable",
+  "model": "deepseek-flash",
+  "opponents": {
+    "chbenchmark": "ottertune",
+    "ycsb": "restune"
+  },
+  "poll_seconds": 30,
+  "purpose": "development with comparator-guided stopping/revisions; not unbiased final paper evidence",
+  "review_every": 10,
+  "seed": 0,
+  "separation": "References are used only by external reviewer, never passed to GP/LLM prompts.",
+  "speed_metric": "mean best TPS improvement over adaptive evaluations 11..40",
+  "version": "ours-development-100-v1",
+  "warmup": 15,
+  "workloads": [
+    "ycsb",
+    "chbenchmark"
+  ]
+}

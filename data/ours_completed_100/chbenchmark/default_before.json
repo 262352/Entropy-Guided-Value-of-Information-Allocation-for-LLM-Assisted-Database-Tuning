@@ -1,0 +1,1189 @@
+{
+  "analytical_p95_ms": 688.987,
+  "cv": 0.055474764004874735,
+  "cv_by_metric": {
+    "analytical_p95_ms": 0.01370552987350479,
+    "raw_metric": 0.055474764004874735
+  },
+  "raw_metric": 66.78688149598247,
+  "records": [
+    {
+      "benchmark_seconds": 0.0,
+      "config": {
+        "autovacuum_analyze_scale_factor": 0.1,
+        "autovacuum_freeze_max_age": 200000000,
+        "autovacuum_max_workers": 3,
+        "autovacuum_naptime": 60,
+        "autovacuum_vacuum_cost_delay": 2.0,
+        "autovacuum_vacuum_cost_limit": -1,
+        "autovacuum_vacuum_scale_factor": 0.2,
+        "backend_flush_after": 0,
+        "bgwriter_delay": 200,
+        "bgwriter_flush_after": 64,
+        "bgwriter_lru_maxpages": 100,
+        "bgwriter_lru_multiplier": 2.0,
+        "checkpoint_completion_target": 0.9,
+        "checkpoint_flush_after": 32,
+        "checkpoint_timeout": 300,
+        "checkpoint_warning": 30,
+        "commit_delay": 0,
+        "commit_siblings": 5,
+        "deadlock_timeout": 1000,
+        "default_statistics_target": 100,
+        "effective_cache_size": 524288,
+        "effective_io_concurrency": 1,
+        "from_collapse_limit": 8,
+        "hot_standby_feedback": false,
+        "huge_pages": "try",
+        "jit": true,
+        "join_collapse_limit": 8,
+        "log_checkpoints": false,
+        "log_connections": false,
+        "log_disconnections": false,
+        "log_min_duration_statement": -1,
+        "log_rotation_size": 10240,
+        "log_temp_files": -1,
+        "logging_collector": false,
+        "maintenance_work_mem": 65536,
+        "max_connections": 100,
+        "max_locks_per_transaction": 64,
+        "max_parallel_maintenance_workers": 2,
+        "max_parallel_workers": 8,
+        "max_parallel_workers_per_gather": 2,
+        "max_pred_locks_per_transaction": 64,
+        "max_replication_slots": 10,
+        "max_standby_streaming_delay": 30000,
+        "max_wal_senders": 10,
+        "max_wal_size": 1024,
+        "max_worker_processes": 8,
+        "min_wal_size": 80,
+        "random_page_cost": 4.0,
+        "seq_page_cost": 1.0,
+        "shared_buffers": 16384,
+        "temp_buffers": 1024,
+        "track_activity_query_size": 1024,
+        "vacuum_cost_delay": 0.0,
+        "vacuum_cost_limit": 200,
+        "wal_buffers": 512,
+        "wal_compression": false,
+        "wal_sync_method": "fdatasync",
+        "wal_writer_delay": 200,
+        "wal_writer_flush_after": 128,
+        "work_mem": 4096
+      },
+      "elapsed_seconds": 115.33523723692633,
+      "metadata": {
+        "analytical_p95_ms": 699.57,
+        "measured_goodput": 91.42622437483905,
+        "measured_type_statistics": {
+          "Delivery": {
+            "count": 754,
+            "p95_latency_ms": 113.815,
+            "throughput_per_second": 12.360655043684533
+          },
+          "NewOrder": {
+            "count": 121,
+            "p95_latency_ms": 62.552,
+            "throughput_per_second": 1.9836064460024252
+          },
+          "OrderStatus": {
+            "count": 751,
+            "p95_latency_ms": 1.251,
+            "throughput_per_second": 12.311474718577035
+          },
+          "Payment": {
+            "count": 1716,
+            "p95_latency_ms": 124.951,
+            "throughput_per_second": 28.131145961488937
+          },
+          "Q1": {
+            "count": 48,
+            "p95_latency_ms": 40.46,
+            "throughput_per_second": 0.7868852017199702
+          },
+          "Q10": {
+            "count": 81,
+            "p95_latency_ms": 769.435,
+            "throughput_per_second": 1.3278687779024496
+          },
+          "Q11": {
+            "count": 75,
+            "p95_latency_ms": 47.771,
+            "throughput_per_second": 1.2295081276874533
+          },
+          "Q12": {
+            "count": 71,
+            "p95_latency_ms": 171.07,
+            "throughput_per_second": 1.163934360877456
+          },
+          "Q13": {
+            "count": 84,
+            "p95_latency_ms": 28.234,
+            "throughput_per_second": 1.3770491030099479
+          },
+          "Q14": {
+            "count": 65,
+            "p95_latency_ms": 19.399,
+            "throughput_per_second": 1.0655737106624596
+          },
+          "Q15": {
+            "count": 72,
+            "p95_latency_ms": 1157.539,
+            "throughput_per_second": 1.1803278025799553
+          },
+          "Q16": {
+            "count": 73,
+            "p95_latency_ms": 363.468,
+            "throughput_per_second": 1.1967212442824549
+          },
+          "Q17": {
+            "count": 93,
+            "p95_latency_ms": 99.344,
+            "throughput_per_second": 1.5245900783324422
+          },
+          "Q18": {
+            "count": 89,
+            "p95_latency_ms": 461.94,
+            "throughput_per_second": 1.4590163115224448
+          },
+          "Q19": {
+            "count": 77,
+            "p95_latency_ms": 71.843,
+            "throughput_per_second": 1.2622950110924522
+          },
+          "Q2": {
+            "count": 26,
+            "p95_latency_ms": 171.764,
+            "throughput_per_second": 0.42622948426498386
+          },
+          "Q20": {
+            "count": 69,
+            "p95_latency_ms": 39.995,
+            "throughput_per_second": 1.131147477472457
+          },
+          "Q21": {
+            "count": 76,
+            "p95_latency_ms": 64.457,
+            "throughput_per_second": 1.245901569389953
+          },
+          "Q22": {
+            "count": 66,
+            "p95_latency_ms": 33.665,
+            "throughput_per_second": 1.081967152364959
+          },
+          "Q3": {
+            "count": 48,
+            "p95_latency_ms": 48.517,
+            "throughput_per_second": 0.7868852017199702
+          },
+          "Q4": {
+            "count": 28,
+            "p95_latency_ms": 169.22,
+            "throughput_per_second": 0.45901636766998266
+          },
+          "Q5": {
+            "count": 72,
+            "p95_latency_ms": 87.107,
+            "throughput_per_second": 1.1803278025799553
+          },
+          "Q6": {
+            "count": 56,
+            "p95_latency_ms": 20.947,
+            "throughput_per_second": 0.9180327353399653
+          },
+          "Q7": {
+            "count": 68,
+            "p95_latency_ms": 61.872,
+            "throughput_per_second": 1.114754035769958
+          },
+          "Q8": {
+            "count": 96,
+            "p95_latency_ms": 60.802,
+            "throughput_per_second": 1.5737704034399405
+          },
+          "Q9": {
+            "count": 70,
+            "p95_latency_ms": 37.531,
+            "throughput_per_second": 1.1475409191749566
+          },
+          "StockLevel": {
+            "count": 732,
+            "p95_latency_ms": 2.715,
+            "throughput_per_second": 11.999999326229545
+          },
+          "_analytical": {
+            "count": 1503,
+            "p95_latency_ms": 699.57
+          }
+        },
+        "measurement_folder": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/artifacts/ours_ycsb_ch_100_dev_v1/chbenchmark/measurements/preflight/trial_0000/attempt_bd6efcf87b7842e3a56ed634f8c0d3d6",
+        "measurement_seconds": 60,
+        "summary": {
+          "Benchmark Type": "tpcc,chbenchmark",
+          "Current Timestamp (milliseconds)": 1794217214730,
+          "DBMS Type": "POSTGRES",
+          "DBMS Version": "PostgreSQL 14.9 on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit",
+          "Elapsed Time (nanoseconds)": 61000003425,
+          "Final State": "EXIT",
+          "Goodput (requests/second)": 113.5573706732132,
+          "Latency Distribution": {
+            "25th Percentile Latency (microseconds)": 2474,
+            "75th Percentile Latency (microseconds)": 71038,
+            "90th Percentile Latency (microseconds)": 105652,
+            "95th Percentile Latency (microseconds)": 133667,
+            "99th Percentile Latency (microseconds)": 453966,
+            "Average Latency (microseconds)": 47445,
+            "Maximum Latency (microseconds)": 1873898,
+            "Median Latency (microseconds)": 16434,
+            "Minimum Latency (microseconds)": 1
+          },
+          "Measured Goodput (requests/second)": 91.42622437483905,
+          "Measured Requests": 20497,
+          "Measured Successful Requests": 5577,
+          "Measured Type Statistics": {
+            "Delivery": {
+              "count": 754,
+              "p95_latency_ms": 113.815,
+              "throughput_per_second": 12.360655043684533
+            },
+            "NewOrder": {
+              "count": 121,
+              "p95_latency_ms": 62.552,
+              "throughput_per_second": 1.9836064460024252
+            },
+            "OrderStatus": {
+              "count": 751,
+              "p95_latency_ms": 1.251,
+              "throughput_per_second": 12.311474718577035
+            },
+            "Payment": {
+              "count": 1716,
+              "p95_latency_ms": 124.951,
+              "throughput_per_second": 28.131145961488937
+            },
+            "Q1": {
+              "count": 48,
+              "p95_latency_ms": 40.46,
+              "throughput_per_second": 0.7868852017199702
+            },
+            "Q10": {
+              "count": 81,
+              "p95_latency_ms": 769.435,
+              "throughput_per_second": 1.3278687779024496
+            },
+            "Q11": {
+              "count": 75,
+              "p95_latency_ms": 47.771,
+              "throughput_per_second": 1.2295081276874533
+            },
+            "Q12": {
+              "count": 71,
+              "p95_latency_ms": 171.07,
+              "throughput_per_second": 1.163934360877456
+            },
+            "Q13": {
+              "count": 84,
+              "p95_latency_ms": 28.234,
+              "throughput_per_second": 1.3770491030099479
+            },
+            "Q14": {
+              "count": 65,
+              "p95_latency_ms": 19.399,
+              "throughput_per_second": 1.0655737106624596
+            },
+            "Q15": {
+              "count": 72,
+              "p95_latency_ms": 1157.539,
+              "throughput_per_second": 1.1803278025799553
+            },
+            "Q16": {
+              "count": 73,
+              "p95_latency_ms": 363.468,
+              "throughput_per_second": 1.1967212442824549
+            },
+            "Q17": {
+              "count": 93,
+              "p95_latency_ms": 99.344,
+              "throughput_per_second": 1.5245900783324422
+            },
+            "Q18": {
+              "count": 89,
+              "p95_latency_ms": 461.94,
+              "throughput_per_second": 1.4590163115224448
+            },
+            "Q19": {
+              "count": 77,
+              "p95_latency_ms": 71.843,
+              "throughput_per_second": 1.2622950110924522
+            },
+            "Q2": {
+              "count": 26,
+              "p95_latency_ms": 171.764,
+              "throughput_per_second": 0.42622948426498386
+            },
+            "Q20": {
+              "count": 69,
+              "p95_latency_ms": 39.995,
+              "throughput_per_second": 1.131147477472457
+            },
+            "Q21": {
+              "count": 76,
+              "p95_latency_ms": 64.457,
+              "throughput_per_second": 1.245901569389953
+            },
+            "Q22": {
+              "count": 66,
+              "p95_latency_ms": 33.665,
+              "throughput_per_second": 1.081967152364959
+            },
+            "Q3": {
+              "count": 48,
+              "p95_latency_ms": 48.517,
+              "throughput_per_second": 0.7868852017199702
+            },
+            "Q4": {
+              "count": 28,
+              "p95_latency_ms": 169.22,
+              "throughput_per_second": 0.45901636766998266
+            },
+            "Q5": {
+              "count": 72,
+              "p95_latency_ms": 87.107,
+              "throughput_per_second": 1.1803278025799553
+            },
+            "Q6": {
+              "count": 56,
+              "p95_latency_ms": 20.947,
+              "throughput_per_second": 0.9180327353399653
+            },
+            "Q7": {
+              "count": 68,
+              "p95_latency_ms": 61.872,
+              "throughput_per_second": 1.114754035769958
+            },
+            "Q8": {
+              "count": 96,
+              "p95_latency_ms": 60.802,
+              "throughput_per_second": 1.5737704034399405
+            },
+            "Q9": {
+              "count": 70,
+              "p95_latency_ms": 37.531,
+              "throughput_per_second": 1.1475409191749566
+            },
+            "StockLevel": {
+              "count": 732,
+              "p95_latency_ms": 2.715,
+              "throughput_per_second": 11.999999326229545
+            },
+            "_analytical": {
+              "count": 1503,
+              "p95_latency_ms": 699.57
+            }
+          },
+          "Start timestamp (milliseconds)": 1794217137666,
+          "Throughput (requests/second)": 336.01637457612975,
+          "isolation": "TRANSACTION_SERIALIZABLE",
+          "scalefactor": "1",
+          "terminals": "16"
+        },
+        "transactional_tps": 66.78688149598247,
+        "warmup_seconds": 15,
+        "workload": "chbenchmark"
+      },
+      "raw_metric": 66.78688149598247,
+      "restart_seconds": 0.0,
+      "status": "SUCCESS",
+      "system_metrics": null,
+      "timestamp": "2026-11-09T09:40:15.089444+00:00",
+      "utility": 0.0,
+      "warmup_seconds": 0.0
+    },
+    {
+      "benchmark_seconds": 0.0,
+      "config": {
+        "autovacuum_analyze_scale_factor": 0.1,
+        "autovacuum_freeze_max_age": 200000000,
+        "autovacuum_max_workers": 3,
+        "autovacuum_naptime": 60,
+        "autovacuum_vacuum_cost_delay": 2.0,
+        "autovacuum_vacuum_cost_limit": -1,
+        "autovacuum_vacuum_scale_factor": 0.2,
+        "backend_flush_after": 0,
+        "bgwriter_delay": 200,
+        "bgwriter_flush_after": 64,
+        "bgwriter_lru_maxpages": 100,
+        "bgwriter_lru_multiplier": 2.0,
+        "checkpoint_completion_target": 0.9,
+        "checkpoint_flush_after": 32,
+        "checkpoint_timeout": 300,
+        "checkpoint_warning": 30,
+        "commit_delay": 0,
+        "commit_siblings": 5,
+        "deadlock_timeout": 1000,
+        "default_statistics_target": 100,
+        "effective_cache_size": 524288,
+        "effective_io_concurrency": 1,
+        "from_collapse_limit": 8,
+        "hot_standby_feedback": false,
+        "huge_pages": "try",
+        "jit": true,
+        "join_collapse_limit": 8,
+        "log_checkpoints": false,
+        "log_connections": false,
+        "log_disconnections": false,
+        "log_min_duration_statement": -1,
+        "log_rotation_size": 10240,
+        "log_temp_files": -1,
+        "logging_collector": false,
+        "maintenance_work_mem": 65536,
+        "max_connections": 100,
+        "max_locks_per_transaction": 64,
+        "max_parallel_maintenance_workers": 2,
+        "max_parallel_workers": 8,
+        "max_parallel_workers_per_gather": 2,
+        "max_pred_locks_per_transaction": 64,
+        "max_replication_slots": 10,
+        "max_standby_streaming_delay": 30000,
+        "max_wal_senders": 10,
+        "max_wal_size": 1024,
+        "max_worker_processes": 8,
+        "min_wal_size": 80,
+        "random_page_cost": 4.0,
+        "seq_page_cost": 1.0,
+        "shared_buffers": 16384,
+        "temp_buffers": 1024,
+        "track_activity_query_size": 1024,
+        "vacuum_cost_delay": 0.0,
+        "vacuum_cost_limit": 200,
+        "wal_buffers": 512,
+        "wal_compression": false,
+        "wal_sync_method": "fdatasync",
+        "wal_writer_delay": 200,
+        "wal_writer_flush_after": 128,
+        "work_mem": 4096
+      },
+      "elapsed_seconds": 108.31777447182685,
+      "metadata": {
+        "analytical_p95_ms": 688.987,
+        "measured_goodput": 86.93442802377778,
+        "measured_type_statistics": {
+          "Delivery": {
+            "count": 613,
+            "p95_latency_ms": 124.926,
+            "throughput_per_second": 10.04918053527735
+          },
+          "NewOrder": {
+            "count": 110,
+            "p95_latency_ms": 70.878,
+            "throughput_per_second": 1.8032787257430805
+          },
+          "OrderStatus": {
+            "count": 688,
+            "p95_latency_ms": 1.26,
+            "throughput_per_second": 11.278688757374905
+          },
+          "Payment": {
+            "count": 1657,
+            "p95_latency_ms": 136.314,
+            "throughput_per_second": 27.163934986875315
+          },
+          "Q1": {
+            "count": 45,
+            "p95_latency_ms": 40.377,
+            "throughput_per_second": 0.7377049332585329
+          },
+          "Q10": {
+            "count": 72,
+            "p95_latency_ms": 731.577,
+            "throughput_per_second": 1.1803278932136527
+          },
+          "Q11": {
+            "count": 72,
+            "p95_latency_ms": 45.448,
+            "throughput_per_second": 1.1803278932136527
+          },
+          "Q12": {
+            "count": 86,
+            "p95_latency_ms": 170.468,
+            "throughput_per_second": 1.409836094671863
+          },
+          "Q13": {
+            "count": 88,
+            "p95_latency_ms": 27.735,
+            "throughput_per_second": 1.4426229805944646
+          },
+          "Q14": {
+            "count": 92,
+            "p95_latency_ms": 19.228,
+            "throughput_per_second": 1.5081967524396676
+          },
+          "Q15": {
+            "count": 85,
+            "p95_latency_ms": 1308.012,
+            "throughput_per_second": 1.3934426517105623
+          },
+          "Q16": {
+            "count": 81,
+            "p95_latency_ms": 362.347,
+            "throughput_per_second": 1.3278688798653593
+          },
+          "Q17": {
+            "count": 61,
+            "p95_latency_ms": 100.641,
+            "throughput_per_second": 1.0000000206393447
+          },
+          "Q18": {
+            "count": 78,
+            "p95_latency_ms": 461.348,
+            "throughput_per_second": 1.278688550981457
+          },
+          "Q19": {
+            "count": 77,
+            "p95_latency_ms": 70.531,
+            "throughput_per_second": 1.2622951080201565
+          },
+          "Q2": {
+            "count": 27,
+            "p95_latency_ms": 165.72,
+            "throughput_per_second": 0.4426229599551198
+          },
+          "Q20": {
+            "count": 81,
+            "p95_latency_ms": 39.486,
+            "throughput_per_second": 1.3278688798653593
+          },
+          "Q21": {
+            "count": 64,
+            "p95_latency_ms": 63.446,
+            "throughput_per_second": 1.0491803495232468
+          },
+          "Q22": {
+            "count": 84,
+            "p95_latency_ms": 31.673,
+            "throughput_per_second": 1.3770492087492614
+          },
+          "Q3": {
+            "count": 31,
+            "p95_latency_ms": 53.971,
+            "throughput_per_second": 0.5081967318003227
+          },
+          "Q4": {
+            "count": 32,
+            "p95_latency_ms": 147.251,
+            "throughput_per_second": 0.5245901747616234
+          },
+          "Q5": {
+            "count": 72,
+            "p95_latency_ms": 86.103,
+            "throughput_per_second": 1.1803278932136527
+          },
+          "Q6": {
+            "count": 71,
+            "p95_latency_ms": 20.581,
+            "throughput_per_second": 1.163934450252352
+          },
+          "Q7": {
+            "count": 96,
+            "p95_latency_ms": 60.623,
+            "throughput_per_second": 1.5737705242848703
+          },
+          "Q8": {
+            "count": 74,
+            "p95_latency_ms": 59.676,
+            "throughput_per_second": 1.2131147791362542
+          },
+          "Q9": {
+            "count": 74,
+            "p95_latency_ms": 37.177,
+            "throughput_per_second": 1.2131147791362542
+          },
+          "StockLevel": {
+            "count": 692,
+            "p95_latency_ms": 2.711,
+            "throughput_per_second": 11.344262529220106
+          },
+          "_analytical": {
+            "count": 1543,
+            "p95_latency_ms": 688.987
+          }
+        },
+        "measurement_folder": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/artifacts/ours_ycsb_ch_100_dev_v1/chbenchmark/measurements/preflight/trial_0001/attempt_c6c732fb5aee4fbfb303f4ff62b25915",
+        "measurement_seconds": 60,
+        "summary": {
+          "Benchmark Type": "tpcc,chbenchmark",
+          "Current Timestamp (milliseconds)": 1794217328610,
+          "DBMS Type": "POSTGRES",
+          "DBMS Version": "PostgreSQL 14.9 on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit",
+          "Elapsed Time (nanoseconds)": 60999998741,
+          "Final State": "EXIT",
+          "Goodput (requests/second)": 109.786887511831,
+          "Latency Distribution": {
+            "25th Percentile Latency (microseconds)": 2777,
+            "75th Percentile Latency (microseconds)": 82161,
+            "90th Percentile Latency (microseconds)": 119218,
+            "95th Percentile Latency (microseconds)": 151377,
+            "99th Percentile Latency (microseconds)": 451666,
+            "Average Latency (microseconds)": 53162,
+            "Maximum Latency (microseconds)": 1921882,
+            "Median Latency (microseconds)": 22784,
+            "Minimum Latency (microseconds)": 1
+          },
+          "Measured Goodput (requests/second)": 86.93442802377778,
+          "Measured Requests": 18314,
+          "Measured Successful Requests": 5303,
+          "Measured Type Statistics": {
+            "Delivery": {
+              "count": 613,
+              "p95_latency_ms": 124.926,
+              "throughput_per_second": 10.04918053527735
+            },
+            "NewOrder": {
+              "count": 110,
+              "p95_latency_ms": 70.878,
+              "throughput_per_second": 1.8032787257430805
+            },
+            "OrderStatus": {
+              "count": 688,
+              "p95_latency_ms": 1.26,
+              "throughput_per_second": 11.278688757374905
+            },
+            "Payment": {
+              "count": 1657,
+              "p95_latency_ms": 136.314,
+              "throughput_per_second": 27.163934986875315
+            },
+            "Q1": {
+              "count": 45,
+              "p95_latency_ms": 40.377,
+              "throughput_per_second": 0.7377049332585329
+            },
+            "Q10": {
+              "count": 72,
+              "p95_latency_ms": 731.577,
+              "throughput_per_second": 1.1803278932136527
+            },
+            "Q11": {
+              "count": 72,
+              "p95_latency_ms": 45.448,
+              "throughput_per_second": 1.1803278932136527
+            },
+            "Q12": {
+              "count": 86,
+              "p95_latency_ms": 170.468,
+              "throughput_per_second": 1.409836094671863
+            },
+            "Q13": {
+              "count": 88,
+              "p95_latency_ms": 27.735,
+              "throughput_per_second": 1.4426229805944646
+            },
+            "Q14": {
+              "count": 92,
+              "p95_latency_ms": 19.228,
+              "throughput_per_second": 1.5081967524396676
+            },
+            "Q15": {
+              "count": 85,
+              "p95_latency_ms": 1308.012,
+              "throughput_per_second": 1.3934426517105623
+            },
+            "Q16": {
+              "count": 81,
+              "p95_latency_ms": 362.347,
+              "throughput_per_second": 1.3278688798653593
+            },
+            "Q17": {
+              "count": 61,
+              "p95_latency_ms": 100.641,
+              "throughput_per_second": 1.0000000206393447
+            },
+            "Q18": {
+              "count": 78,
+              "p95_latency_ms": 461.348,
+              "throughput_per_second": 1.278688550981457
+            },
+            "Q19": {
+              "count": 77,
+              "p95_latency_ms": 70.531,
+              "throughput_per_second": 1.2622951080201565
+            },
+            "Q2": {
+              "count": 27,
+              "p95_latency_ms": 165.72,
+              "throughput_per_second": 0.4426229599551198
+            },
+            "Q20": {
+              "count": 81,
+              "p95_latency_ms": 39.486,
+              "throughput_per_second": 1.3278688798653593
+            },
+            "Q21": {
+              "count": 64,
+              "p95_latency_ms": 63.446,
+              "throughput_per_second": 1.0491803495232468
+            },
+            "Q22": {
+              "count": 84,
+              "p95_latency_ms": 31.673,
+              "throughput_per_second": 1.3770492087492614
+            },
+            "Q3": {
+              "count": 31,
+              "p95_latency_ms": 53.971,
+              "throughput_per_second": 0.5081967318003227
+            },
+            "Q4": {
+              "count": 32,
+              "p95_latency_ms": 147.251,
+              "throughput_per_second": 0.5245901747616234
+            },
+            "Q5": {
+              "count": 72,
+              "p95_latency_ms": 86.103,
+              "throughput_per_second": 1.1803278932136527
+            },
+            "Q6": {
+              "count": 71,
+              "p95_latency_ms": 20.581,
+              "throughput_per_second": 1.163934450252352
+            },
+            "Q7": {
+              "count": 96,
+              "p95_latency_ms": 60.623,
+              "throughput_per_second": 1.5737705242848703
+            },
+            "Q8": {
+              "count": 74,
+              "p95_latency_ms": 59.676,
+              "throughput_per_second": 1.2131147791362542
+            },
+            "Q9": {
+              "count": 74,
+              "p95_latency_ms": 37.177,
+              "throughput_per_second": 1.2131147791362542
+            },
+            "StockLevel": {
+              "count": 692,
+              "p95_latency_ms": 2.711,
+              "throughput_per_second": 11.344262529220106
+            },
+            "_analytical": {
+              "count": 1543,
+              "p95_latency_ms": 688.987
+            }
+          },
+          "Start timestamp (milliseconds)": 1794217251830,
+          "Throughput (requests/second)": 300.22951439326164,
+          "isolation": "TRANSACTION_SERIALIZABLE",
+          "scalefactor": "1",
+          "terminals": "16"
+        },
+        "transactional_tps": 61.63934553449076,
+        "warmup_seconds": 15,
+        "workload": "chbenchmark"
+      },
+      "raw_metric": 61.63934553449076,
+      "restart_seconds": 0.0,
+      "status": "SUCCESS",
+      "system_metrics": null,
+      "timestamp": "2026-11-09T09:42:08.885050+00:00",
+      "utility": 0.0,
+      "warmup_seconds": 0.0
+    },
+    {
+      "benchmark_seconds": 0.0,
+      "config": {
+        "autovacuum_analyze_scale_factor": 0.1,
+        "autovacuum_freeze_max_age": 200000000,
+        "autovacuum_max_workers": 3,
+        "autovacuum_naptime": 60,
+        "autovacuum_vacuum_cost_delay": 2.0,
+        "autovacuum_vacuum_cost_limit": -1,
+        "autovacuum_vacuum_scale_factor": 0.2,
+        "backend_flush_after": 0,
+        "bgwriter_delay": 200,
+        "bgwriter_flush_after": 64,
+        "bgwriter_lru_maxpages": 100,
+        "bgwriter_lru_multiplier": 2.0,
+        "checkpoint_completion_target": 0.9,
+        "checkpoint_flush_after": 32,
+        "checkpoint_timeout": 300,
+        "checkpoint_warning": 30,
+        "commit_delay": 0,
+        "commit_siblings": 5,
+        "deadlock_timeout": 1000,
+        "default_statistics_target": 100,
+        "effective_cache_size": 524288,
+        "effective_io_concurrency": 1,
+        "from_collapse_limit": 8,
+        "hot_standby_feedback": false,
+        "huge_pages": "try",
+        "jit": true,
+        "join_collapse_limit": 8,
+        "log_checkpoints": false,
+        "log_connections": false,
+        "log_disconnections": false,
+        "log_min_duration_statement": -1,
+        "log_rotation_size": 10240,
+        "log_temp_files": -1,
+        "logging_collector": false,
+        "maintenance_work_mem": 65536,
+        "max_connections": 100,
+        "max_locks_per_transaction": 64,
+        "max_parallel_maintenance_workers": 2,
+        "max_parallel_workers": 8,
+        "max_parallel_workers_per_gather": 2,
+        "max_pred_locks_per_transaction": 64,
+        "max_replication_slots": 10,
+        "max_standby_streaming_delay": 30000,
+        "max_wal_senders": 10,
+        "max_wal_size": 1024,
+        "max_worker_processes": 8,
+        "min_wal_size": 80,
+        "random_page_cost": 4.0,
+        "seq_page_cost": 1.0,
+        "shared_buffers": 16384,
+        "temp_buffers": 1024,
+        "track_activity_query_size": 1024,
+        "vacuum_cost_delay": 0.0,
+        "vacuum_cost_limit": 200,
+        "wal_buffers": 512,
+        "wal_compression": false,
+        "wal_sync_method": "fdatasync",
+        "wal_writer_delay": 200,
+        "wal_writer_flush_after": 128,
+        "work_mem": 4096
+      },
+      "elapsed_seconds": 106.54815306188539,
+      "metadata": {
+        "analytical_p95_ms": 680.71,
+        "measured_goodput": 94.133252286172,
+        "measured_type_statistics": {
+          "Delivery": {
+            "count": 791,
+            "p95_latency_ms": 116.558,
+            "throughput_per_second": 13.183321982712828
+          },
+          "NewOrder": {
+            "count": 55,
+            "p95_latency_ms": 84.136,
+            "throughput_per_second": 0.916665877432624
+          },
+          "OrderStatus": {
+            "count": 789,
+            "p95_latency_ms": 1.217,
+            "throughput_per_second": 13.149988678078914
+          },
+          "Payment": {
+            "count": 1715,
+            "p95_latency_ms": 122.284,
+            "throughput_per_second": 28.58330872358091
+          },
+          "Q1": {
+            "count": 42,
+            "p95_latency_ms": 41.451,
+            "throughput_per_second": 0.6999993973121855
+          },
+          "Q10": {
+            "count": 72,
+            "p95_latency_ms": 730.001,
+            "throughput_per_second": 1.1999989668208895
+          },
+          "Q11": {
+            "count": 81,
+            "p95_latency_ms": 46.203,
+            "throughput_per_second": 1.3499988376735006
+          },
+          "Q12": {
+            "count": 100,
+            "p95_latency_ms": 167.153,
+            "throughput_per_second": 1.66666523169568
+          },
+          "Q13": {
+            "count": 70,
+            "p95_latency_ms": 28.103,
+            "throughput_per_second": 1.166665662186976
+          },
+          "Q14": {
+            "count": 60,
+            "p95_latency_ms": 20.315,
+            "throughput_per_second": 0.999999139017408
+          },
+          "Q15": {
+            "count": 74,
+            "p95_latency_ms": 1340.834,
+            "throughput_per_second": 1.2333322714548032
+          },
+          "Q16": {
+            "count": 76,
+            "p95_latency_ms": 366.104,
+            "throughput_per_second": 1.2666655760887167
+          },
+          "Q17": {
+            "count": 91,
+            "p95_latency_ms": 99.678,
+            "throughput_per_second": 1.5166653608430687
+          },
+          "Q18": {
+            "count": 78,
+            "p95_latency_ms": 469.325,
+            "throughput_per_second": 1.2999988807226304
+          },
+          "Q19": {
+            "count": 84,
+            "p95_latency_ms": 72.206,
+            "throughput_per_second": 1.399998794624371
+          },
+          "Q2": {
+            "count": 27,
+            "p95_latency_ms": 168.659,
+            "throughput_per_second": 0.4499996125578336
+          },
+          "Q20": {
+            "count": 75,
+            "p95_latency_ms": 40.783,
+            "throughput_per_second": 1.24999892377176
+          },
+          "Q21": {
+            "count": 79,
+            "p95_latency_ms": 62.365,
+            "throughput_per_second": 1.316665533039587
+          },
+          "Q22": {
+            "count": 66,
+            "p95_latency_ms": 30.208,
+            "throughput_per_second": 1.0999990529191488
+          },
+          "Q3": {
+            "count": 52,
+            "p95_latency_ms": 51.954,
+            "throughput_per_second": 0.8666659204817536
+          },
+          "Q4": {
+            "count": 36,
+            "p95_latency_ms": 150.554,
+            "throughput_per_second": 0.5999994834104447
+          },
+          "Q5": {
+            "count": 79,
+            "p95_latency_ms": 85.706,
+            "throughput_per_second": 1.316665533039587
+          },
+          "Q6": {
+            "count": 69,
+            "p95_latency_ms": 21.602,
+            "throughput_per_second": 1.1499990098700192
+          },
+          "Q7": {
+            "count": 64,
+            "p95_latency_ms": 59.58,
+            "throughput_per_second": 1.0666657482852353
+          },
+          "Q8": {
+            "count": 72,
+            "p95_latency_ms": 58.924,
+            "throughput_per_second": 1.1999989668208895
+          },
+          "Q9": {
+            "count": 80,
+            "p95_latency_ms": 38.146,
+            "throughput_per_second": 1.3333321853565439
+          },
+          "StockLevel": {
+            "count": 771,
+            "p95_latency_ms": 2.683,
+            "throughput_per_second": 12.849988936373691
+          },
+          "_analytical": {
+            "count": 1527,
+            "p95_latency_ms": 680.71
+          }
+        },
+        "measurement_folder": "/root/OpAdviserPrivate/Entropy-Guided-Value-of-Information-Allocation-for-LLM-Assisted-Database-Tuning/artifacts/ours_ycsb_ch_100_dev_v1/chbenchmark/measurements/preflight/trial_0002/attempt_40319f32998547d09f954c3b949d8444",
+        "measurement_seconds": 60,
+        "summary": {
+          "Benchmark Type": "tpcc,chbenchmark",
+          "Current Timestamp (milliseconds)": 1794217435272,
+          "DBMS Type": "POSTGRES",
+          "DBMS Version": "PostgreSQL 14.9 on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0, 64-bit",
+          "Elapsed Time (nanoseconds)": 60000051659,
+          "Final State": "EXIT",
+          "Goodput (requests/second)": 116.94989930808586,
+          "Latency Distribution": {
+            "25th Percentile Latency (microseconds)": 2302,
+            "75th Percentile Latency (microseconds)": 74680,
+            "90th Percentile Latency (microseconds)": 105497,
+            "95th Percentile Latency (microseconds)": 132418,
+            "99th Percentile Latency (microseconds)": 441471,
+            "Average Latency (microseconds)": 46431,
+            "Maximum Latency (microseconds)": 1901412,
+            "Median Latency (microseconds)": 12890,
+            "Minimum Latency (microseconds)": 0
+          },
+          "Measured Goodput (requests/second)": 94.133252286172,
+          "Measured Requests": 20598,
+          "Measured Successful Requests": 5648,
+          "Measured Type Statistics": {
+            "Delivery": {
+              "count": 791,
+              "p95_latency_ms": 116.558,
+              "throughput_per_second": 13.183321982712828
+            },
+            "NewOrder": {
+              "count": 55,
+              "p95_latency_ms": 84.136,
+              "throughput_per_second": 0.916665877432624
+            },
+            "OrderStatus": {
+              "count": 789,
+              "p95_latency_ms": 1.217,
+              "throughput_per_second": 13.149988678078914
+            },
+            "Payment": {
+              "count": 1715,
+              "p95_latency_ms": 122.284,
+              "throughput_per_second": 28.58330872358091
+            },
+            "Q1": {
+              "count": 42,
+              "p95_latency_ms": 41.451,
+              "throughput_per_second": 0.6999993973121855
+            },
+            "Q10": {
+              "count": 72,
+              "p95_latency_ms": 730.001,
+              "throughput_per_second": 1.1999989668208895
+            },
+            "Q11": {
+              "count": 81,
+              "p95_latency_ms": 46.203,
+              "throughput_per_second": 1.3499988376735006
+            },
+            "Q12": {
+              "count": 100,
+              "p95_latency_ms": 167.153,
+              "throughput_per_second": 1.66666523169568
+            },
+            "Q13": {
+              "count": 70,
+              "p95_latency_ms": 28.103,
+              "throughput_per_second": 1.166665662186976
+            },
+            "Q14": {
+              "count": 60,
+              "p95_latency_ms": 20.315,
+              "throughput_per_second": 0.999999139017408
+            },
+            "Q15": {
+              "count": 74,
+              "p95_latency_ms": 1340.834,
+              "throughput_per_second": 1.2333322714548032
+            },
+            "Q16": {
+              "count": 76,
+              "p95_latency_ms": 366.104,
+              "throughput_per_second": 1.2666655760887167
+            },
+            "Q17": {
+              "count": 91,
+              "p95_latency_ms": 99.678,
+              "throughput_per_second": 1.5166653608430687
+            },
+            "Q18": {
+              "count": 78,
+              "p95_latency_ms": 469.325,
+              "throughput_per_second": 1.2999988807226304
+            },
+            "Q19": {
+              "count": 84,
+              "p95_latency_ms": 72.206,
+              "throughput_per_second": 1.399998794624371
+            },
+            "Q2": {
+              "count": 27,
+              "p95_latency_ms": 168.659,
+              "throughput_per_second": 0.4499996125578336
+            },
+            "Q20": {
+              "count": 75,
+              "p95_latency_ms": 40.783,
+              "throughput_per_second": 1.24999892377176
+            },
+            "Q21": {
+              "count": 79,
+              "p95_latency_ms": 62.365,
+              "throughput_per_second": 1.316665533039587
+            },
+            "Q22": {
+              "count": 66,
+              "p95_latency_ms": 30.208,
+              "throughput_per_second": 1.0999990529191488
+            },
+            "Q3": {
+              "count": 52,
+              "p95_latency_ms": 51.954,
+              "throughput_per_second": 0.8666659204817536
+            },
+            "Q4": {
+              "count": 36,
+              "p95_latency_ms": 150.554,
+              "throughput_per_second": 0.5999994834104447
+            },
+            "Q5": {
+              "count": 79,
+              "p95_latency_ms": 85.706,
+              "throughput_per_second": 1.316665533039587
+            },
+            "Q6": {
+              "count": 69,
+              "p95_latency_ms": 21.602,
+              "throughput_per_second": 1.1499990098700192
+            },
+            "Q7": {
+              "count": 64,
+              "p95_latency_ms": 59.58,
+              "throughput_per_second": 1.0666657482852353
+            },
+            "Q8": {
+              "count": 72,
+              "p95_latency_ms": 58.924,
+              "throughput_per_second": 1.1999989668208895
+            },
+            "Q9": {
+              "count": 80,
+              "p95_latency_ms": 38.146,
+              "throughput_per_second": 1.3333321853565439
+            },
+            "StockLevel": {
+              "count": 771,
+              "p95_latency_ms": 2.683,
+              "throughput_per_second": 12.849988936373691
+            },
+            "_analytical": {
+              "count": 1527,
+              "p95_latency_ms": 680.71
+            }
+          },
+          "Start timestamp (milliseconds)": 1794217358657,
+          "Throughput (requests/second)": 343.2997044246762,
+          "isolation": "TRANSACTION_SERIALIZABLE",
+          "scalefactor": "1",
+          "terminals": "16"
+        },
+        "transactional_tps": 68.68327419817896,
+        "warmup_seconds": 15,
+        "workload": "chbenchmark"
+      },
+      "raw_metric": 68.68327419817896,
+      "restart_seconds": 0.0,
+      "status": "SUCCESS",
+      "system_metrics": null,
+      "timestamp": "2026-11-09T09:43:55.572368+00:00",
+      "utility": 0.0,
+      "warmup_seconds": 0.0
+    }
+  ],
+  "stable": true,
+  "transactional_tps": 66.78688149598247
+}
